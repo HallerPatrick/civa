@@ -1,3 +1,5 @@
+mod builtins;
+
 use ctrlc;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
@@ -25,6 +27,8 @@ fn main() {
                         Ok(()) => {}
                         Err(err) => println!("{}", err),
                     }
+                } else if commands[0] == ":q" {
+                    break;
                 } else {
                     let child = Command::new(commands[0]).args(&commands[1..]).spawn();
 
@@ -39,7 +43,8 @@ fn main() {
                     }
                 }
             }
-            Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => break,
+            // "Soft Reset" the shell
+            Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => continue,
             Err(err) => {
                 eprintln!("Error: {:?}", err);
                 break;
