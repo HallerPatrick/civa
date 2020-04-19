@@ -1,7 +1,9 @@
 mod builtins;
+mod command_executer;
 mod command_handler;
 
 use builtins::cd;
+use command_handler::handle_command;
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
@@ -14,6 +16,8 @@ fn main() {
         match rl.readline("> ") {
             Ok(line) => {
                 let commands: Vec<&str> = line.split(" ").collect::<Vec<&str>>();
+
+                handle_command(line.as_str());
 
                 // Check first for predefined commands
                 if commands[0] == "cd" {

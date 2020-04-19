@@ -21,6 +21,8 @@ A own implementation of a shell
 - [ ] Implement PATH search and correct command handling (depending on slash)
 - [ ] Handle command splitting
 - [ ] Handle piping
+- [ ] Make Alias System
+- [ ] Clip Board
 - [ ] Improve UI
 - [ ] Integration of SVN
 - [ ] Thinking of ways to improve shell workflows (own opinion)

@@ -25,28 +25,60 @@
 //
 //
 //
+//
 
-use std::iter::Peekable;
+use log::trace;
 
-const SEMICOLON: &str = ";";
-const DOUBLE_AMPERSAND: &str = "&&";
-const DOUBLE_PIPE: &str = "||";
+use std::process;
 
 #[derive(Debug)]
-enum ExecStrategy {
+pub enum ExecStrategy {
     Builtin,
     SpecialBuiltin,
     Unspecific,
     ShellFunction,
     OtherUtilities,
     PathCommand,
+    Undefined,
 }
 
 #[derive(Debug)]
-struct Command {
-    command_name: String,
-    arguments: Vec<String>,
-    strategy: ExecStrategy,
+pub struct Command {
+    pub command_name: String,
+    pub arguments: Vec<String>,
+    pub strategy: ExecStrategy,
+}
+
+pub fn handle_command(command_string: &str) {
+    let commands: Vec<Vec<&str>> = split_commands(command_string);
+
+    for command in commands {
+        let cmd = define_command_strategy(command.first().unwrap());
+    }
+}
+
+fn define_command_strategy(command_name: &str) -> ExecStrategy {
+    let builtin_names: Vec<&str> = vec!["cd"];
+
+    // Check if command_name contains slash
+    if has_slash(command_name) {
+        // TODO: Handle slash command
+        unimplemented!("Slash commands not implemented yet");
+        // return ExecStrategy::Undefined;
+    }
+
+    // Check if command is a builtin utility
+    if builtin_names.contains(&command_name) {
+        return ExecStrategy::Builtin;
+    } else {
+        process::exit(127)
+    }
+
+    ExecStrategy::Undefined
+}
+
+fn has_slash(token: &str) -> bool {
+    token.contains("/")
 }
 
 // Returns single commands that are split by the special chars(sequences)
@@ -61,30 +93,33 @@ fn split_commands(command_string: &str) -> Vec<Vec<&str>> {
 
     let mut command_tokens: Vec<&str> = command_string.split_whitespace().collect();
 
-    while command_tokens.len() != 0 {
-        if is_delimiter(command_tokens.first().unwrap()) {
+    while !command_tokens.is_empty() {
+        if is_delimiter(command_tokens.first().unwrap()) && command_tokens.len() == 1 {
             return commands;
         }
 
         let delimiter = has_next_delimiter_at(command_tokens.clone());
 
         match delimiter {
+            // Take all command tokens till delimiter
             Some(i) => {
-                // TODO: MAKE THIS WORK
-                let (left, right) = command_tokens.split_at(i);
-                command_tokens = right.clone().to_vec();
+                let mut single_command: Vec<&str> = Vec::new();
 
-                commands.push(left.clone().to_vec());
+                for _ in 0..(i) {
+                    let token = command_tokens.remove(0);
+                    single_command.push(token);
+                }
+
+                // Remove delimiter
+                command_tokens.remove(0);
+
+                commands.push(single_command);
             }
 
             // No more delimiters -> one connected command
             None => {
                 commands.push(command_tokens.clone());
                 return commands;
-                // // Empty
-                // while !command_tokens.is_empty() {
-                //     command_tokens.pop();
-                // }
             }
         }
     }
@@ -104,7 +139,7 @@ fn has_next_delimiter_at(tokens: Vec<&str>) -> Option<usize> {
 }
 
 fn is_delimiter(token: &str) -> bool {
-    token.contains(SEMICOLON) || token.contains(DOUBLE_AMPERSAND) || token.contains(DOUBLE_PIPE)
+    token.contains(";") || token.contains("&&") || token.contains("||")
 }
 
 #[cfg(test)]
@@ -160,6 +195,16 @@ mod test {
     }
 
     #[test]
+    fn test_split_commands_single_delimiter() {
+        let c = ";";
+
+        let result = split_commands(c);
+
+        let expected_result: Vec<Vec<&str>> = vec![];
+        assert_eq!(result, expected_result);
+    }
+
+    #[test]
     fn test_split_commands_single_command_with_args() {
         let c = "ls -la";
 
@@ -172,6 +217,16 @@ mod test {
     #[test]
     fn test_split_commands_commands() {
         let c = "ls -la || cd ..";
+
+        let result = split_commands(c);
+
+        let expected_result: Vec<Vec<&str>> = vec![vec!["ls", "-la"], vec!["cd", ".."]];
+        assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn test_split_commands_commands_delimiter_at_end() {
+        let c = "ls -la || cd .. &&";
 
         let result = split_commands(c);
 
