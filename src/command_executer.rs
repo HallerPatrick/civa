@@ -1,43 +1,49 @@
 use std::process::Command as SysCommand;
-use std::process::ExitStatus;
 
+use log::error;
+
+use super::builtins::cd;
+use super::builtins::error::ProcessError;
+use super::builtins::exit_status::ExitStatus;
 use super::command_handler::{Command, ExecStrategy};
 
-use std::{error::Error, fmt};
+pub fn exec_sequentially(commands: Vec<Command>) -> ExitStatus {
+    let mut current_status: ExitStatus = ExitStatus { code: -1 };
 
-#[derive(Debug)]
-pub struct ProcessError;
-
-impl Error for ProcessError {}
-
-impl fmt::Display for ProcessError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Oh no, something bad went down")
+    for command in commands {
+        match exec_command(command) {
+            Ok(exit_status) => current_status = exit_status,
+            Err(err) => {
+                error!("{}", err);
+            }
+        }
     }
+
+    current_status
 }
 
-pub fn exec_command(command: Command) -> Result<ExitStatus, ProcessError> {
+fn exec_command(command: Command) -> Result<ExitStatus, ProcessError> {
     match command.strategy {
-        ExecStrategy::Builtin => {
-            if command.command_name == "cd" {
+        ExecStrategy::Builtin => match command.command_name.as_str() {
+            "cd" => return cd::cd(command.arguments.first()),
+            _ => {
                 let child = SysCommand::new(command.command_name.clone())
-                    .args(if command.arguments.len() == 0 {
-                        vec![String::from(".")]
-                    } else {
-                        command.arguments
-                    })
+                    .args(command.arguments)
                     .spawn();
 
                 match child {
                     Ok(mut c) => match c.wait() {
-                        Ok(exit_status) => return Ok(exit_status),
-                        Err(err) => return Err(ProcessError),
+                        Ok(exit_status) => {
+                            return Ok(ExitStatus {
+                                code: exit_status.code().unwrap(),
+                            })
+                        }
+                        Err(_) => return Err(ProcessError),
                     },
-                    Err(err) => return Err(ProcessError),
+                    Err(_) => return Err(ProcessError),
                 }
             }
-            Err(ProcessError)
-        }
+        },
         _ => Err(ProcessError),
     }
 }

@@ -27,7 +27,8 @@
 //
 //
 
-use log::trace;
+use crate::env::environment::EnvManager;
+use log::{debug, info};
 
 use std::process;
 
@@ -49,15 +50,28 @@ pub struct Command {
     pub strategy: ExecStrategy,
 }
 
-pub fn handle_command(command_string: &str) {
-    let commands: Vec<Vec<&str>> = split_commands(command_string);
+pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Command> {
+    let mut commands: Vec<Command> = Vec::new();
+    let raw_commands: Vec<Vec<String>> = split_commands(command_string);
 
-    for command in commands {
-        let cmd = define_command_strategy(command.first().unwrap());
+    for mut command in raw_commands {
+        let strategy = define_command_strategy(command.first().unwrap(), env_manager);
+
+        info!("Defined strategy: {:?}", strategy);
+
+        let cmd = Command {
+            command_name: command.remove(0),
+            arguments: command,
+            strategy,
+        };
+
+        commands.push(cmd);
     }
+
+    commands
 }
 
-fn define_command_strategy(command_name: &str) -> ExecStrategy {
+fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> ExecStrategy {
     let builtin_names: Vec<&str> = vec!["cd"];
 
     // Check if command_name contains slash
@@ -73,8 +87,6 @@ fn define_command_strategy(command_name: &str) -> ExecStrategy {
     } else {
         process::exit(127)
     }
-
-    ExecStrategy::Undefined
 }
 
 fn has_slash(token: &str) -> bool {
@@ -88,8 +100,8 @@ fn has_slash(token: &str) -> bool {
 //       2. &&
 //       3. ||
 //
-fn split_commands(command_string: &str) -> Vec<Vec<&str>> {
-    let mut commands: Vec<Vec<&str>> = Vec::new();
+fn split_commands(command_string: &str) -> Vec<Vec<String>> {
+    let mut commands: Vec<Vec<String>> = Vec::new();
 
     let mut command_tokens: Vec<&str> = command_string.split_whitespace().collect();
 
@@ -103,11 +115,11 @@ fn split_commands(command_string: &str) -> Vec<Vec<&str>> {
         match delimiter {
             // Take all command tokens till delimiter
             Some(i) => {
-                let mut single_command: Vec<&str> = Vec::new();
+                let mut single_command: Vec<String> = Vec::new();
 
                 for _ in 0..(i) {
                     let token = command_tokens.remove(0);
-                    single_command.push(token);
+                    single_command.push(String::from(token));
                 }
 
                 // Remove delimiter
@@ -118,12 +130,19 @@ fn split_commands(command_string: &str) -> Vec<Vec<&str>> {
 
             // No more delimiters -> one connected command
             None => {
-                commands.push(command_tokens.clone());
+                commands.push(
+                    command_tokens
+                        .clone()
+                        .iter()
+                        .map(|s| s.to_string())
+                        .collect(),
+                );
                 return commands;
             }
         }
     }
 
+    debug!("Split input into: {:?}", commands);
     commands
 }
 
