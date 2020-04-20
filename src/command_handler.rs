@@ -30,15 +30,13 @@
 use crate::env::environment::EnvManager;
 use log::{debug, info};
 
-use std::process;
-
 #[derive(Debug)]
 pub enum ExecStrategy {
     Builtin,
-    SpecialBuiltin,
-    Unspecific,
-    ShellFunction,
-    OtherUtilities,
+    // SpecialBuiltin,
+    // Unspecific,
+    // ShellFunction,
+    // OtherUtilities,
     PathCommand,
     Undefined,
 }
@@ -55,12 +53,23 @@ pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Co
     let raw_commands: Vec<Vec<String>> = split_commands(command_string);
 
     for mut command in raw_commands {
-        let strategy = define_command_strategy(command.first().unwrap(), env_manager);
+        let mut command_name = command.remove(0);
+        let strategy = define_command_strategy(command_name.as_str(), env_manager);
 
         info!("Defined strategy: {:?}", strategy);
 
+        match strategy {
+            ExecStrategy::Builtin => {
+                // Do nothing?
+            }
+            ExecStrategy::PathCommand => {
+                command_name = env_manager.get_expanded(command_name).unwrap().into()
+            }
+            _ => {}
+        }
+
         let cmd = Command {
-            command_name: command.remove(0),
+            command_name: command_name,
             arguments: command,
             strategy,
         };
@@ -72,7 +81,7 @@ pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Co
 }
 
 fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> ExecStrategy {
-    let builtin_names: Vec<&str> = vec!["cd"];
+    let builtin_names: Vec<&str> = vec!["cd", ":q"];
 
     // Check if command_name contains slash
     if has_slash(command_name) {
@@ -83,9 +92,13 @@ fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> Exec
 
     // Check if command is a builtin utility
     if builtin_names.contains(&command_name) {
-        return ExecStrategy::Builtin;
+        ExecStrategy::Builtin
+
+    // Check in PATH
+    } else if env_manager.has_command(command_name) {
+        ExecStrategy::PathCommand
     } else {
-        process::exit(127)
+        ExecStrategy::Undefined
     }
 }
 

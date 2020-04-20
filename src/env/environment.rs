@@ -18,7 +18,7 @@
 // If a other command with the same name is found we can overwrite the old one
 //
 
-use log::info;
+use log::{debug, info};
 use std::collections::HashMap;
 use std::env::var;
 use std::fs::read_dir;
@@ -34,17 +34,38 @@ fn collect_all_binaries_of_path() -> HashMap<String, String> {
             Err(_) => continue,
         };
 
+        let mut i = 0;
         for p in path_paths {
             let dir = p.unwrap();
 
+            if i < 50 {
+                debug!(">>> {}", dir.path().to_str().unwrap());
+            }
+
+            i += 1;
+
+            // Collect all files in path
             if dir.file_type().unwrap().is_file() {
-                path_bins.insert(path.clone(), String::from(dir.path().to_str().unwrap()));
+                path_bins.insert(
+                    String::from(dir.file_name().to_str().unwrap()),
+                    String::from(dir.path().to_str().unwrap().clone()),
+                );
+            } else {
+                // TODO: Look for symlinks
+                // Look for symlinks
+                // match dir.symlink_metadata() {
+                //     Ok(metadata) => {
+                //         let data = metadata.path().to_str();
+
+                //         debug!("{}", data);
+                //     }
+                //     Err(_) => {}
+                // }
             }
         }
     }
 
     info!("Found {} binaries in PATH", path_bins.len());
-    info!("Found: {:?}", path_bins);
     path_bins
 }
 
@@ -65,8 +86,19 @@ pub struct EnvManager {
 
 impl EnvManager {
     pub fn new() -> Self {
-        let mut env_vars: HashMap<String, String> = collect_all_binaries_of_path();
+        let env_vars: HashMap<String, String> = collect_all_binaries_of_path();
+        let mut bins: Vec<&String> = env_vars.keys().collect();
+        bins.sort();
+        // debug!("All possible bins: {:?}", bins);
         Self { env_vars }
+    }
+
+    pub fn get_expanded(&self, command_name: String) -> Option<&String> {
+        self.env_vars.get(&command_name)
+    }
+
+    pub fn has_command(&self, command_name: &str) -> bool {
+        self.env_vars.contains_key(command_name)
     }
 }
 
