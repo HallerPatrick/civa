@@ -15,15 +15,10 @@ use command::handler::handle_commands;
 use env::environment::EnvManager;
 
 use rustyline::error::ReadlineError;
-use rustyline::Editor;
 
 fn main() {
     init();
     info!("Init Logger");
-
-    // let mut rl = Editor::<()>::new();
-    let mut rl = built_editor();
-    info!("Init line reader");
 
     let env_manager = EnvManager::new();
     info!("Init env manager");
@@ -34,10 +29,12 @@ fn main() {
     loop {
         // let prompt: String = cli.get_prompt();
 
-        cli.update();
+        let p = cli.update();
 
-        match rl.readline(" >") {
+        match cli.editor.readline(&p) {
             Ok(line) => {
+
+                cli.editor.add_history_entry(line.as_str());
                 info!("Read input line {}", line);
                 let commands = handle_commands(line.as_str(), &env_manager);
 

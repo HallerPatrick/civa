@@ -34,7 +34,7 @@ pub struct Cli {
     // configuration: Configuratio
     terminal_width: u16,
     terminal_height: u16,
-    editor: Editor<MyHelper>
+    pub editor: Editor<MyHelper>
 }
 
 impl Cli {
@@ -47,28 +47,6 @@ impl Cli {
         }
     }
 
-
-
-    pub fn get_prompt(&mut self) -> String {
-        self.update();
-
-        debug!(
-            "Width: {}, Height: {}",
-            self.terminal_width, self.terminal_height
-        );
-
-        // TODO: Find a way to print on the right site of terminal
-
-        let mut line = Cli::get_cwd_label();
-
-        line.push_str(" > ");
-        // for _ in 2..self.terminal_width {
-        //     line.push('.');
-        // }
-
-        line
-    }
-
     fn get_cwd_label() -> String {
         format!(
             "{}{}{}",
@@ -78,11 +56,24 @@ impl Cli {
         )
     }
 
-    pub fn update(&mut self) {
-        let size: (u16, u16) = terminal_size().unwrap();
-        self.terminal_width = size.0;
-        self.terminal_height = size.1;
+    pub fn update(&mut self) -> String {
+        // let size: (u16, u16) = terminal_size().unwrap();
+        // self.terminal_width = size.0;
+        // self.terminal_height = size.1;
 
-        self.editor.helper_mut().expect("No helper").colored_prompt = format!("\x1b[1;32m{}\x1b[0m", " >");
+        let p = format!("{}> ", Cli::get_cwd_label());
+        self.editor.helper_mut().expect("No helper").colored_prompt = format!("\x1b[1;32m{}\x1b[0m", p);
+
+        p
     }
+}
+
+#[cfg(test)]
+mod test {
+
+    #[test]
+    fn name() {
+        unimplemented!();
+    }
+
 }

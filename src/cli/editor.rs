@@ -94,6 +94,7 @@ pub fn built_editor()  -> Editor<MyHelper> {
     rl.set_helper(Some(h));
     rl.bind_sequence(KeyPress::Meta('N'), Cmd::HistorySearchForward);
     rl.bind_sequence(KeyPress::Meta('P'), Cmd::HistorySearchBackward);
+
     if rl.load_history("history.txt").is_err() {
         println!("No previous history.");
     }
