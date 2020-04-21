@@ -7,7 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nix = "0.13.0"
+# nix = "0.13.0"
 rustyline = "6.1.1"
 log = "0.4"
 pretty_env_logger = "0.4"
+rustpython = "0.1.1"
+termion = "1.5.5"
+rustpython-vm = { path = "rustpython/vm"}
+rustpython-compiler = { path = "rustpython/compiler"}

@@ -22,6 +22,10 @@ use log::{debug, info};
 use std::collections::HashMap;
 use std::env::var;
 use std::fs::read_dir;
+use std::fs::read_link;
+use std::fs::symlink_metadata;
+use std::fs::DirEntry;
+use std::path::PathBuf;
 
 // Probably to expensive
 fn collect_all_binaries_of_path() -> HashMap<String, String> {
@@ -34,39 +38,72 @@ fn collect_all_binaries_of_path() -> HashMap<String, String> {
             Err(_) => continue,
         };
 
-        let mut i = 0;
         for p in path_paths {
-            let dir = p.unwrap();
+            let dir: DirEntry = p.unwrap();
 
-            if i < 50 {
-                debug!(">>> {}", dir.path().to_str().unwrap());
-            }
-
-            i += 1;
-
-            // Collect all files in path
+            // Collect all files in path, if not symlink
             if dir.file_type().unwrap().is_file() {
                 path_bins.insert(
                     String::from(dir.file_name().to_str().unwrap()),
                     String::from(dir.path().to_str().unwrap().clone()),
                 );
             } else {
-                // TODO: Look for symlinks
-                // Look for symlinks
-                // match dir.symlink_metadata() {
-                //     Ok(metadata) => {
-                //         let data = metadata.path().to_str();
-
-                //         debug!("{}", data);
-                //     }
-                //     Err(_) => {}
-                // }
+                // Follow all symlinks
+                match follow_symlink(dir.path()) {
+                    Some(abs_path) => {
+                        path_bins.insert(
+                            String::from(dir.file_name().to_str().unwrap()),
+                            String::from(abs_path),
+                        );
+                    }
+                    None => {}
+                }
             }
         }
     }
 
     info!("Found {} binaries in PATH", path_bins.len());
     path_bins
+}
+
+fn follow_symlink(dir: PathBuf) -> Option<String> {
+    match symlink_metadata(dir.to_str().unwrap().clone()) {
+        Ok(metadata) => {
+            let file_type = metadata.file_type();
+
+            if file_type.is_symlink() {
+                match read_link(dir.to_str().unwrap().clone()) {
+                    Ok(path_buf) => {
+                        if path_buf.is_absolute() {
+                            return Some(String::from(path_buf.to_str().unwrap()));
+                        }
+
+                        let mut abs_path: PathBuf = PathBuf::new();
+
+                        abs_path.push(dir.parent().unwrap().to_str().unwrap());
+                        abs_path.push(path_buf);
+
+                        match abs_path.canonicalize() {
+                            // Solve recursive symlinks
+                            Ok(new_path) => return follow_symlink(new_path),
+                            Err(err) => {
+                                debug!("Could not follow link {:?}, reason: {:?}", abs_path, err);
+                                return None;
+                            }
+                        }
+
+                        // return Some(String::from(new_path.to_str().unwrap()));
+                    }
+                    Err(_) => return None,
+                }
+            } else if file_type.is_file() {
+                Some(String::from(dir.to_str().unwrap()))
+            } else {
+                None
+            }
+        }
+        Err(_) => None,
+    }
 }
 
 fn retrive_path_vars() -> Vec<String> {
@@ -87,9 +124,6 @@ pub struct EnvManager {
 impl EnvManager {
     pub fn new() -> Self {
         let env_vars: HashMap<String, String> = collect_all_binaries_of_path();
-        let mut bins: Vec<&String> = env_vars.keys().collect();
-        bins.sort();
-        // debug!("All possible bins: {:?}", bins);
         Self { env_vars }
     }
 

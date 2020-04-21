@@ -22,9 +22,13 @@
 //
 //
 //
+
+// The job of the command handler is to receive the raw input string from the
+// command line it the parses the string to extract all tokens and commands
+// correctly.
 //
-//
-//
+// For every command a Command object is contructed and passed to the
+// command executer
 //
 
 use crate::env::environment::EnvManager;
@@ -48,6 +52,16 @@ pub struct Command {
     pub strategy: ExecStrategy,
 }
 
+impl Default for Command {
+    fn default() -> Self {
+        Self {
+            command_name: String::new(),
+            arguments: Vec::new(),
+            strategy: ExecStrategy::Undefined,
+        }
+    }
+}
+
 pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Command> {
     let mut commands: Vec<Command> = Vec::new();
     let raw_commands: Vec<Vec<String>> = split_commands(command_string);
@@ -69,7 +83,7 @@ pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Co
         }
 
         let cmd = Command {
-            command_name: command_name,
+            command_name,
             arguments: command,
             strategy,
         };
