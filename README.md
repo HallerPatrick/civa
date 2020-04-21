@@ -20,14 +20,15 @@ A own implementation of a shell
 
 - [ ] Make Signal Handling proper (use rustyline or signal_hook?)
 - [ ] Implement PATH search and correct command handling (depending on slash)
-- [ ] Handle command splitting
+- [x] Handle command splitting
 - [ ] Handle piping
 - [ ] Make Alias System
 - [ ] Clip Board
-- [ ] Improve UI
+- [x] Improve UI
 - [ ] Integration of SVN
 - [ ] Thinking of ways to improve shell workflows (own opinion)
 - [ ] Build a config system (python?)
+- [ ] Tests! (look for good mock library)
 - [ ] Read more
 
 
