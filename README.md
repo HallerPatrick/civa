@@ -1,5 +1,6 @@
 # Civa
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FHallerPatrick%2Fciva%2Fbadge&style=flat)](https://actions-badge.atrox.dev/HallerPatrick/civa/goto)
+[![codecov](https://codecov.io/gh/HallerPatrick/civa/branch/master/graph/badge.svg)](https://codecov.io/gh/HallerPatrick/civa)
 
 <p align="center">
   <img src="./civa_logo.png"/>
