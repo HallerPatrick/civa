@@ -2,10 +2,10 @@ use std::process::Command as SysCommand;
 
 use log::{error, info};
 
-use super::builtins::error::ProcessError;
-use super::builtins::executer;
-use super::builtins::exit_status::ExitStatus;
-use super::command_handler::{Command, ExecStrategy};
+use super::error::CommandError;
+use crate::builtins::executer;
+use crate::builtins::exit_status::ExitStatus;
+use crate::command::{Command, ExecStrategy};
 
 pub fn exec_sequentially(commands: Vec<Command>) -> ExitStatus {
     let mut current_status: ExitStatus = ExitStatus { code: -1 };
@@ -22,9 +22,12 @@ pub fn exec_sequentially(commands: Vec<Command>) -> ExitStatus {
     current_status
 }
 
-fn exec_command(command: Command) -> Result<ExitStatus, ProcessError> {
+fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
     match command.strategy {
-        ExecStrategy::Builtin => executer::executer(command),
+        ExecStrategy::Builtin => match executer::executer(command) {
+            Ok(exit_status) => Ok(exit_status),
+            Err(err) => Err(CommandError::from(err)),
+        },
         ExecStrategy::PathCommand => {
             info!("Calling command: {}", command.command_name);
             info!("With arguments: {:?}", command.arguments);
@@ -38,20 +41,20 @@ fn exec_command(command: Command) -> Result<ExitStatus, ProcessError> {
                             code: exit_status.code().unwrap(),
                         })
                     }
-                    Err(_) => Err(ProcessError {
+                    Err(_) => Err(CommandError {
                         kind: String::from("process"),
                         message: String::from("Could not get exit code of process"),
                     }),
                 },
                 Err(_) => {
-                    return Err(ProcessError {
+                    return Err(CommandError {
                         kind: String::from("process"),
                         message: String::from("Could not wait on process to finish"),
                     })
                 }
             }
         }
-        _ => Err(ProcessError {
+        _ => Err(CommandError {
             kind: String::from("exec_command"),
             message: String::from("Could not determine execution strategy"),
         }),

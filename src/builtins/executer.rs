@@ -1,23 +1,23 @@
 use std;
 
 use super::cd;
-use super::error::ProcessError;
+use super::error::BuiltinError;
 use super::exit_status::ExitStatus;
 use super::BUILTIN_NAMES;
-use crate::command_handler::Command;
+use crate::command::Command;
 
-pub fn executer(command: Command) -> Result<ExitStatus, ProcessError> {
+pub fn executer(command: Command) -> Result<ExitStatus, BuiltinError> {
     if BUILTIN_NAMES.contains(&command.command_name.as_str()) {
         match command.command_name.as_str() {
             "cd" => cd::cd(command.arguments.first()),
             ":q" => std::process::exit(0),
-            other => Err(ProcessError {
+            other => Err(BuiltinError {
                 kind: String::from("builtins"),
                 message: String::from(format!("Could not find builtin '{}'", other)),
             }),
         }
     } else {
-        Err(ProcessError {
+        Err(BuiltinError {
             kind: String::from("builtins"),
             message: String::from(format!("Could not find builtin '{}'", command.command_name)),
         })

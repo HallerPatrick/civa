@@ -22,6 +22,10 @@ use log::debug;
 
 use std::env::current_dir;
 
+use super::editor::built_editor;
+use super::editor::MyHelper;
+use rustyline::Editor;
+
 use termion::color::{Blue, Fg};
 use termion::style::Reset;
 use termion::terminal_size;
@@ -30,6 +34,7 @@ pub struct Cli {
     // configuration: Configuratio
     terminal_width: u16,
     terminal_height: u16,
+    editor: Editor<MyHelper>
 }
 
 impl Cli {
@@ -38,8 +43,12 @@ impl Cli {
         Self {
             terminal_width: size.0,
             terminal_height: size.1,
+            editor: built_editor()
         }
     }
+
+
+
     pub fn get_prompt(&mut self) -> String {
         self.update();
 
@@ -69,9 +78,11 @@ impl Cli {
         )
     }
 
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         let size: (u16, u16) = terminal_size().unwrap();
         self.terminal_width = size.0;
         self.terminal_height = size.1;
+
+        self.editor.helper_mut().expect("No helper").colored_prompt = format!("\x1b[1;32m{}\x1b[0m", " >");
     }
 }

@@ -1,31 +1,28 @@
 mod builtins;
 mod cli;
-mod command_executer;
-mod command_handler;
+mod command;
 mod env;
-mod interpreter;
 
 use log::info;
 use pretty_env_logger::init;
 
 use cli::cli::Cli;
+use cli::editor::built_editor;
 
-use command_executer::exec_sequentially;
-use command_handler::handle_commands;
+use command::executer::exec_sequentially;
+use command::handler::handle_commands;
 
 use env::environment::EnvManager;
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use interpreter::interpreter::sample;
-
 fn main() {
-    sample();
     init();
     info!("Init Logger");
 
-    let mut rl = Editor::<()>::new();
+    // let mut rl = Editor::<()>::new();
+    let mut rl = built_editor();
     info!("Init line reader");
 
     let env_manager = EnvManager::new();
@@ -35,9 +32,11 @@ fn main() {
     info!("Init Cli");
 
     loop {
-        let prompt: String = cli.get_prompt();
+        // let prompt: String = cli.get_prompt();
 
-        match rl.readline(prompt.as_str()) {
+        cli.update();
+
+        match rl.readline(" >") {
             Ok(line) => {
                 info!("Read input line {}", line);
                 let commands = handle_commands(line.as_str(), &env_manager);

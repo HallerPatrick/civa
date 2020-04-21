@@ -31,36 +31,9 @@
 // command executer
 //
 
+use crate::command::{Command, ExecStrategy};
 use crate::env::environment::EnvManager;
 use log::{debug, info};
-
-#[derive(Debug)]
-pub enum ExecStrategy {
-    Builtin,
-    // SpecialBuiltin,
-    // Unspecific,
-    // ShellFunction,
-    // OtherUtilities,
-    PathCommand,
-    Undefined,
-}
-
-#[derive(Debug)]
-pub struct Command {
-    pub command_name: String,
-    pub arguments: Vec<String>,
-    pub strategy: ExecStrategy,
-}
-
-impl Default for Command {
-    fn default() -> Self {
-        Self {
-            command_name: String::new(),
-            arguments: Vec::new(),
-            strategy: ExecStrategy::Undefined,
-        }
-    }
-}
 
 pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Command> {
     let mut commands: Vec<Command> = Vec::new();
