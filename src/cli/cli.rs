@@ -26,7 +26,6 @@ use rustyline::Editor;
 
 use termion::color::{Blue, Fg};
 use termion::style::Reset;
-use termion::terminal_size;
 
 pub struct Cli {
     // configuration: Configuration

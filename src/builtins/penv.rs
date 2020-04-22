@@ -15,11 +15,11 @@ pub fn penv(var_name: &str) -> Result<ExitStatus, BuiltinError>{
         return Err(BuiltinError{kind: String::from("penv"), message: String::from("No variable name provided")});
     }
 
-    let path_values = get_path_values(&String::from(var_name));
+    let path_values = get_path_values(var_name);
 
     match path_values {
         Some(paths_string) => {
-            let paths = paths_string.split(":");
+            let paths = paths_string.split(':');
 
             let mut table = Table::new();
 
@@ -38,21 +38,12 @@ pub fn penv(var_name: &str) -> Result<ExitStatus, BuiltinError>{
     }
 }
 
-fn get_path_values(var_name: &String) -> Option<String> {
-
-    let mut path_values: Option<String> = None;
-
-    for (key, value) in env::vars() {
-        if key.trim() == var_name.clone().to_uppercase() {
-            path_values = Some(value.clone());
-        }
-    }
-
-    path_values
+fn get_path_values(var_name: &str) -> Option<String> {
+   match env::var(var_name) {
+       Ok(var) => Some(var),
+       Err(_) => None
+   }
 }
-
-
-
 
 #[cfg(test)]
 mod test {

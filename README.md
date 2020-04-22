@@ -12,10 +12,12 @@ A own implementation of a shell
 
 * Learn UNIX more
 * Learn rust more, try not to rely on shell impls in rust, but learn it the hard way
+    * Don't use clone (only if reasoned well)
+    * Use generics if useful
+    * Use lifetimes if useful
 * As long as I don't know how dirty code and programs look, I can not build clean code and programs
 * Build something I would use, with the approach the build a minimal working program
   and improve it while reaching its limits
-
 
 ## Todo
 

@@ -33,10 +33,11 @@ fn collect_all_binaries_of_path() -> HashMap<String, String> {
     let paths = retrieve_path_vars();
 
     for path in paths {
-        let path_paths = match read_dir(path.clone()) {
+        let path_paths = match read_dir(&path) {
             Ok(p) => p,
             Err(_) => continue,
         };
+
 
         for p in path_paths {
             let dir: DirEntry = p.unwrap();
@@ -45,15 +46,14 @@ fn collect_all_binaries_of_path() -> HashMap<String, String> {
             if dir.file_type().unwrap().is_file() {
                 path_bins.insert(
                     String::from(dir.file_name().to_str().unwrap()),
-                    String::from(dir.path().to_str().unwrap().clone()),
+                    dir.path().to_str().unwrap().to_owned(),
                 );
             } else {
                 // Follow all symlinks
-
                 if let Some(abs_path) = follow_symlink(dir.path()) {
                     path_bins.insert(
                         String::from(dir.file_name().to_str().unwrap()),
-                        String::from(abs_path),
+                        abs_path,
                     );
                 }
             }
@@ -64,6 +64,8 @@ fn collect_all_binaries_of_path() -> HashMap<String, String> {
     path_bins
 }
 
+
+// TODO: Split up function
 fn follow_symlink(dir: PathBuf) -> Option<String> {
     match symlink_metadata(dir.to_str().unwrap().clone()) {
         Ok(metadata) => {
@@ -92,7 +94,7 @@ fn follow_symlink(dir: PathBuf) -> Option<String> {
 
                         // return Some(String::from(new_path.to_str().unwrap()));
                     }
-                    Err(_) => return None,
+                    Err(_) => None,
                 }
             } else if file_type.is_file() {
                 Some(String::from(dir.to_str().unwrap()))
@@ -107,7 +109,7 @@ fn follow_symlink(dir: PathBuf) -> Option<String> {
 fn retrieve_path_vars() -> Vec<String> {
     match var("PATH") {
         Ok(val) => split_var_string(val),
-        Err(_) => panic!("Could not retrieve PATH env"),
+        Err(err) => panic!(format!("Could not retrieve PATH env, Reason: {}", err)),
     }
 }
 

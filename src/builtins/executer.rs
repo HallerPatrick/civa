@@ -14,13 +14,13 @@ pub fn executer(command: Command) -> Result<ExitStatus, BuiltinError> {
             "penv" => penv::penv(command.arguments.first().unwrap_or(&String::new())),
             other => Err(BuiltinError {
                 kind: String::from("builtins"),
-                message: String::from(format!("Could not find builtin '{}'", other)),
+                message: format!("Could not find builtin '{}'", other),
             }),
         }
     } else {
         Err(BuiltinError {
             kind: String::from("builtins"),
-            message: String::from(format!("Could not find builtin '{}'", command.command_name)),
+            message: format!("Could not find builtin '{}'", command.command_name),
         })
     }
 }

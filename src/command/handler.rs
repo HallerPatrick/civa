@@ -38,11 +38,14 @@ use crate::env::environment::EnvManager;
 use log::{debug, info};
 use crate::command::PipeType::Undefined;
 
+
+type CommandTokenCollection = Vec<Vec<String>>;
+
 pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Command> {
     let mut commands: Vec<Command> = Vec::new();
 
-    // Only splits sequentiall commands, not pipes
-    let raw_commands: Vec<Vec<String>> = split_commands(command_string);
+    // Only splits sequential commands, not pipes
+    let raw_commands: CommandTokenCollection = split_commands(command_string);
 
 
     for mut command in raw_commands {
@@ -88,8 +91,8 @@ fn build_pipe_commands(command: Vec<String>, env_manager: &EnvManager) -> Vec<Co
 
     let collected_commands = split_pipe(command);
 
-    for (i, mut command) in collected_commands.iter().enumerate() {
-        let mut current_pipe_type: PipeType = PipeType::PassesOutput;
+    for (i, command) in collected_commands.iter().enumerate() {
+        let current_pipe_type: PipeType;
         if commands.is_empty() {
             current_pipe_type = PipeType::PassesOutput;
         } else if collected_commands.len() == i + 1 {
@@ -101,23 +104,30 @@ fn build_pipe_commands(command: Vec<String>, env_manager: &EnvManager) -> Vec<Co
         if command.first().is_none() {
             continue;
         }
-        let command_name: String = command.first().unwrap().to_string();
+
+        // Owned it to closure as we dont need it afterwards -> speed?
+        let mut command = command.to_owned();
+
+        // Take command name
+        let command_name: String = command.remove(0);
 
         let strategy = define_command_strategy(command_name.as_str(), env_manager);
-        let mut arguments: Vec<String> = command.clone();
-        arguments.remove(0);
+
         commands.push(Command {
             command_name,
-            arguments,
+            // Rest of command -> arguments
+            arguments: command,
             strategy,
             pipe_type: current_pipe_type,
         });
+
+
     }
     commands
 }
 
-fn split_pipe(raw_pipe_commands: Vec<String>) -> Vec<Vec<String>> {
-    let mut commands: Vec<Vec<String>> = Vec::new();
+fn split_pipe(raw_pipe_commands: Vec<String>) -> CommandTokenCollection {
+    let mut commands: CommandTokenCollection = Vec::new();
 
     let mut current_command = Vec::new();
 
@@ -166,8 +176,8 @@ fn has_slash(token: &str) -> bool {
 //       2. &&
 //       3. ||
 //
-fn split_commands(command_string: &str) -> Vec<Vec<String>> {
-    let mut commands: Vec<Vec<String>> = Vec::new();
+fn split_commands(command_string: &str) -> CommandTokenCollection {
+    let mut commands: CommandTokenCollection = Vec::new();
 
     let mut command_tokens: Vec<&str> = command_string.split_whitespace().collect();
 
@@ -176,7 +186,7 @@ fn split_commands(command_string: &str) -> Vec<Vec<String>> {
             return commands;
         }
 
-        let delimiter = has_next_delimiter_at(command_tokens.clone());
+        let delimiter = has_next_delimiter_at(&command_tokens);
 
         match delimiter {
             // Take all command tokens till delimiter
@@ -212,40 +222,22 @@ fn split_commands(command_string: &str) -> Vec<Vec<String>> {
     commands
 }
 
-fn has_next_delimiter_at(tokens: Vec<&str>) -> Option<usize> {
-    let mut i: usize = 0;
-    for token in tokens {
+fn has_next_delimiter_at(tokens: &[&str]) -> Option<usize> {
+    for (i, token) in tokens.iter().enumerate() {
         if is_delimiter(token) {
             return Some(i);
         }
-        i += 1;
     }
     None
 }
 
 fn is_delimiter(token: &str) -> bool {
-    token.contains(";") || token.contains("&&") || token.contains("||")
+    token.contains(';') || token.contains("&&") || token.contains("||")
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use pretty_env_logger::env_logger::Env;
-
-    #[test]
-    fn test_is_pipe() {
-        assert_eq!(is_pipe("ls"), false);
-    }
-
-    #[test]
-    fn test_is_pipe_sequential_command() {
-        assert_eq!(is_pipe("ls || ls"), false);
-    }
-
-    #[test]
-    fn test_is_pipe_pipe() {
-        assert_eq!(is_pipe("ls | ls"), true);
-    }
 
     #[test]
     fn test_split_pipe() {
@@ -358,7 +350,7 @@ mod test {
     fn test_has_next_delimiter_at_found() {
         let v = vec!["ls", "||", "some"];
 
-        let result = has_next_delimiter_at(v);
+        let result = has_next_delimiter_at(&v);
 
         assert_eq!(result.unwrap(), 1);
     }
@@ -367,7 +359,7 @@ mod test {
     fn test_has_next_delimiter_at_found_none() {
         let v = vec!["ls", "some"];
 
-        let result = has_next_delimiter_at(v);
+        let result = has_next_delimiter_at(&v);
 
         assert_eq!(result, None);
     }

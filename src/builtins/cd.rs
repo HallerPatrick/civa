@@ -11,11 +11,11 @@ pub fn cd(path: Option<&String>) -> Result<ExitStatus, BuiltinError> {
     }
 }
 
-fn set_cwd(path: &String) -> Result<ExitStatus, BuiltinError> {
-    match env::set_current_dir(Path::new(&path)) {
+fn set_cwd(path: &str) -> Result<ExitStatus, BuiltinError> {
+    match env::set_current_dir(Path::new(path)) {
         Ok(()) => Ok(ExitStatus { code: 1 }),
         Err(_) => Err(BuiltinError {
-            kind: String::from("Builting:cd"),
+            kind: String::from("Builtin:cd"),
             message: String::from("Could not execute cd command"),
         }),
     }
