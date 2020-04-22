@@ -56,7 +56,7 @@ fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
             match child {
                 Ok(mut c) => match c.wait() {
                     Ok(exit_status) => {
-                        return Ok(ExitStatus {
+                        Ok(ExitStatus {
                             code: exit_status.code().unwrap(),
                         })
                     }
@@ -66,7 +66,7 @@ fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
                     }),
                 },
                 Err(_) => {
-                    return Err(CommandError {
+                    Err(CommandError {
                         kind: String::from("process"),
                         message: format!("Could not find command {}", command.command_name),
                     })

@@ -1,5 +1,3 @@
-use std;
-
 use crate::command::Command;
 
 use super::cd;

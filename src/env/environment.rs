@@ -30,7 +30,7 @@ use std::path::PathBuf;
 // Probably to expensive
 fn collect_all_binaries_of_path() -> HashMap<String, String> {
     let mut path_bins: HashMap<String, String> = HashMap::new();
-    let paths = retrive_path_vars();
+    let paths = retrieve_path_vars();
 
     for path in paths {
         let path_paths = match read_dir(path.clone()) {
@@ -49,14 +49,12 @@ fn collect_all_binaries_of_path() -> HashMap<String, String> {
                 );
             } else {
                 // Follow all symlinks
-                match follow_symlink(dir.path()) {
-                    Some(abs_path) => {
-                        path_bins.insert(
-                            String::from(dir.file_name().to_str().unwrap()),
-                            String::from(abs_path),
-                        );
-                    }
-                    None => {}
+
+                if let Some(abs_path) = follow_symlink(dir.path()) {
+                    path_bins.insert(
+                        String::from(dir.file_name().to_str().unwrap()),
+                        String::from(abs_path),
+                    );
                 }
             }
         }
@@ -85,10 +83,10 @@ fn follow_symlink(dir: PathBuf) -> Option<String> {
 
                         match abs_path.canonicalize() {
                             // Solve recursive symlinks
-                            Ok(new_path) => return follow_symlink(new_path),
+                            Ok(new_path) => follow_symlink(new_path),
                             Err(err) => {
                                 debug!("Could not follow link {:?}, reason: {:?}", abs_path, err);
-                                return None;
+                                None
                             }
                         }
 
@@ -106,7 +104,7 @@ fn follow_symlink(dir: PathBuf) -> Option<String> {
     }
 }
 
-fn retrive_path_vars() -> Vec<String> {
+fn retrieve_path_vars() -> Vec<String> {
     match var("PATH") {
         Ok(val) => split_var_string(val),
         Err(_) => panic!("Could not retrieve PATH env"),
@@ -114,7 +112,7 @@ fn retrive_path_vars() -> Vec<String> {
 }
 
 fn split_var_string(val: String) -> Vec<String> {
-    val.split(":").map(|s| String::from(s)).collect()
+    val.split(':').map(String::from).collect()
 }
 
 pub struct EnvManager {

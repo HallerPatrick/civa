@@ -11,7 +11,6 @@ pub enum ExecStrategy {
     // OtherUtilities,
     PathCommand,
     Undefined,
-    Pipe(PipeType)
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]

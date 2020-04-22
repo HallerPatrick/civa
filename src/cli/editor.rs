@@ -98,5 +98,5 @@ pub fn built_editor()  -> Editor<MyHelper> {
     if rl.load_history("history.txt").is_err() {
         println!("No previous history.");
     }
-    return rl;
+    rl
 }

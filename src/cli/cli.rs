@@ -18,8 +18,6 @@
 //
 //
 
-use log::debug;
-
 use std::env::current_dir;
 
 use super::editor::built_editor;
@@ -31,18 +29,13 @@ use termion::style::Reset;
 use termion::terminal_size;
 
 pub struct Cli {
-    // configuration: Configuratio
-    terminal_width: u16,
-    terminal_height: u16,
+    // configuration: Configuration
     pub editor: Editor<MyHelper>
 }
 
 impl Cli {
     pub fn new() -> Self {
-        let size: (u16, u16) = terminal_size().unwrap();
         Self {
-            terminal_width: size.0,
-            terminal_height: size.1,
             editor: built_editor()
         }
     }

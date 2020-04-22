@@ -25,9 +25,6 @@ fn main() {
     init();
     info!("Init Logger");
 
-    let v: Vec<&str> = Vec::new();
-
-
     // Start loop
     main_loop();
 }

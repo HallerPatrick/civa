@@ -34,10 +34,8 @@
 use crate::builtins::BUILTIN_NAMES;
 use crate::command::{Command, ExecStrategy, PipeType};
 use crate::env::environment::EnvManager;
-use std::slice::Split;
 
 use log::{debug, info};
-use std::env::current_exe;
 use crate::command::PipeType::Undefined;
 
 pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Command> {
@@ -85,7 +83,7 @@ pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Co
     commands
 }
 
-fn build_pipe_commands(mut command: Vec<String>, env_manager: &EnvManager) -> Vec<Command> {
+fn build_pipe_commands(command: Vec<String>, env_manager: &EnvManager) -> Vec<Command> {
     let mut commands: Vec<Command> = Vec::new();
 
     let collected_commands = split_pipe(command);
@@ -118,13 +116,13 @@ fn build_pipe_commands(mut command: Vec<String>, env_manager: &EnvManager) -> Ve
     commands
 }
 
-fn split_pipe(mut raw_pipe_commands: Vec<String>) -> Vec<Vec<String>> {
+fn split_pipe(raw_pipe_commands: Vec<String>) -> Vec<Vec<String>> {
     let mut commands: Vec<Vec<String>> = Vec::new();
 
     let mut current_command = Vec::new();
 
     for command in raw_pipe_commands {
-        if command == String::from("|") {
+        if command == "|" {
             commands.push(current_command);
             current_command = Vec::new();
         } else {
@@ -157,12 +155,8 @@ fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> Exec
     }
 }
 
-fn is_pipe(token: &str) -> bool {
-    token.contains("|") && !token.contains("||")
-}
-
 fn has_slash(token: &str) -> bool {
-    token.contains("/")
+    token.contains('/')
 }
 
 // Returns single commands that are split by the special chars(sequences)
@@ -206,7 +200,7 @@ fn split_commands(command_string: &str) -> Vec<Vec<String>> {
                     command_tokens
                         .clone()
                         .iter()
-                        .map(|s| s.to_string())
+                        .map(|s| (*s).to_string())
                         .collect(),
                 );
                 return commands;
@@ -236,7 +230,6 @@ fn is_delimiter(token: &str) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::command::ExecStrategy::Pipe;
     use pretty_env_logger::env_logger::Env;
 
     #[test]
