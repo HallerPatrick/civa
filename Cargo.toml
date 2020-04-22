@@ -7,13 +7,21 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# Argument Parser
+clap = "2.33.0"
+
 # nix = "0.13.0"
+
+# CLI
 rustyline = "6.1.1"
+termion = "1.5.5"
+prettytable-rs = "^0.8"
+ansi_term = "0.12"
+
+# Loggin
 log = "0.4"
 pretty_env_logger = "0.4"
-rustpython = "0.1.1"
-termion = "1.5.5"
 
-syn = "1.0"
-quote = "1.0"
+# Experimental
+# rustpython = "0.1.1"
 

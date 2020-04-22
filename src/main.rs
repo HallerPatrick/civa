@@ -3,22 +3,36 @@ mod cli;
 mod command;
 mod env;
 
+use clap::App;
 use log::info;
 use pretty_env_logger::init;
-
-use cli::cli::Cli;
-use cli::editor::built_editor;
-
-use command::executer::exec_sequentially;
-use command::handler::handle_commands;
-
-use env::environment::EnvManager;
-
 use rustyline::error::ReadlineError;
 
+
+use crate::cli::cli::Cli;
+use crate::command::executer::exec_sequentially;
+use crate::command::handler::handle_commands;
+use crate::env::environment::EnvManager;
+#[macro_use] extern crate prettytable;
+
 fn main() {
+    App::new("civa")
+        .version("0.1.0")
+        .author("Patrick Haller <patrickhaller40@googlemail.com>")
+        .about("A shell written in rust")
+        .get_matches();
+
     init();
     info!("Init Logger");
+
+    let v: Vec<&str> = Vec::new();
+
+
+    // Start loop
+    main_loop();
+}
+
+fn main_loop() {
 
     let env_manager = EnvManager::new();
     info!("Init env manager");
@@ -27,13 +41,10 @@ fn main() {
     info!("Init Cli");
 
     loop {
-        // let prompt: String = cli.get_prompt();
-
         let p = cli.update();
 
         match cli.editor.readline(&p) {
             Ok(line) => {
-
                 cli.editor.add_history_entry(line.as_str());
                 info!("Read input line {}", line);
                 let commands = handle_commands(line.as_str(), &env_manager);

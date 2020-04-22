@@ -2,7 +2,7 @@ pub mod error;
 pub mod executer;
 pub mod handler;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ExecStrategy {
     Builtin,
     // SpecialBuiltin,
@@ -11,9 +11,17 @@ pub enum ExecStrategy {
     // OtherUtilities,
     PathCommand,
     Undefined,
+    Pipe(PipeType)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
+pub enum PipeType {
+    OnlyOutput,
+    OnlyInput,
+    OutAndInput
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Command {
     pub command_name: String,
     pub arguments: Vec<String>,

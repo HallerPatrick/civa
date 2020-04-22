@@ -7,6 +7,24 @@ use crate::builtins::executer;
 use crate::builtins::exit_status::ExitStatus;
 use crate::command::{Command, ExecStrategy};
 
+
+// 
+// Depending on using pipes or just the sequential delimiter
+// We have to capture the stdout out and pipe it into 
+// the stdin of the next command.
+// 
+// If it just a sequential, then throw exit code etc away...for now
+//
+// fn exec(commands: Vec<Command>) -> ExitStatus {
+
+//     for command in commands {
+
+
+//     }
+
+
+// }
+
 pub fn exec_sequentially(commands: Vec<Command>) -> ExitStatus {
     let mut current_status: ExitStatus = ExitStatus { code: -1 };
 
@@ -15,6 +33,7 @@ pub fn exec_sequentially(commands: Vec<Command>) -> ExitStatus {
             Ok(exit_status) => current_status = exit_status,
             Err(err) => {
                 error!("{}", err);
+                println!("{}", err.message);
             }
         }
     }
@@ -49,7 +68,7 @@ fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
                 Err(_) => {
                     return Err(CommandError {
                         kind: String::from("process"),
-                        message: String::from("Could not wait on process to finish"),
+                        message: format!("Could not find command {}", command.command_name),
                     })
                 }
             }

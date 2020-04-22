@@ -1,16 +1,19 @@
 use std;
 
+use crate::command::Command;
+
 use super::cd;
 use super::error::BuiltinError;
 use super::exit_status::ExitStatus;
 use super::BUILTIN_NAMES;
-use crate::command::Command;
+use super::penv;
 
 pub fn executer(command: Command) -> Result<ExitStatus, BuiltinError> {
     if BUILTIN_NAMES.contains(&command.command_name.as_str()) {
         match command.command_name.as_str() {
             "cd" => cd::cd(command.arguments.first()),
             ":q" => std::process::exit(0),
+            "penv" => penv::penv(command.arguments.first().unwrap_or(&String::new())),
             other => Err(BuiltinError {
                 kind: String::from("builtins"),
                 message: String::from(format!("Could not find builtin '{}'", other)),

@@ -19,7 +19,7 @@ A own implementation of a shell
 
 ## Todo
 
-- [ ] Make Signal Handling proper (use rustyline or signal_hook?)
+- [x] Make Signal Handling proper (use rustyline or signal_hook?)
 - [ ] Implement PATH search and correct command handling (depending on slash)
 - [x] Handle command splitting
 - [ ] Handle piping

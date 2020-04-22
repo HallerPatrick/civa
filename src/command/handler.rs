@@ -31,45 +31,110 @@
 // command executer
 //
 
-use crate::command::{Command, ExecStrategy};
+use crate::builtins::BUILTIN_NAMES;
+use crate::command::{Command, ExecStrategy, PipeType};
 use crate::env::environment::EnvManager;
+
 use log::{debug, info};
 
 pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Command> {
     let mut commands: Vec<Command> = Vec::new();
+
+    // Only splits sequentiall commands, not pipes
     let raw_commands: Vec<Vec<String>> = split_commands(command_string);
 
+    info!("Splitted commands: {:?}", raw_commands);
+
     for mut command in raw_commands {
-        let mut command_name = command.remove(0);
-        let strategy = define_command_strategy(command_name.as_str(), env_manager);
+        // Pipes
+        if command.clone().contains(&String::from("|")) {
+            info!("Found pipe");
+            let mut pipe_commands = build_pipe_commands(command.clone());
+            info!("Pipe list: {:?}", pipe_commands);
+            commands.append(&mut pipe_commands);
+        } else {
+            let mut command_name = command.remove(0);
 
-        info!("Defined strategy: {:?}", strategy);
+            let strategy = define_command_strategy(command_name.as_str(), env_manager);
 
-        match strategy {
-            ExecStrategy::Builtin => {
-                // Do nothing?
+            info!("Defined strategy: {:?}", strategy);
+
+            match strategy {
+                ExecStrategy::Builtin => {
+                    // Do nothing?
+                }
+                ExecStrategy::PathCommand => {
+                    command_name = env_manager.get_expanded(command_name).unwrap().into()
+                }
+                _ => {}
             }
-            ExecStrategy::PathCommand => {
-                command_name = env_manager.get_expanded(command_name).unwrap().into()
-            }
-            _ => {}
+
+            let cmd = Command {
+                command_name,
+                arguments: command,
+                strategy,
+            };
+
+            commands.push(cmd);
         }
-
-        let cmd = Command {
-            command_name,
-            arguments: command,
-            strategy,
-        };
-
-        commands.push(cmd);
     }
 
     commands
 }
 
-fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> ExecStrategy {
-    let builtin_names: Vec<&str> = vec!["cd", ":q"];
+fn build_pipe_commands(mut command: Vec<String>) -> Vec<Command> {
+    let mut pipe_arguments: Vec<Command> = Vec::new();
 
+    let mut current_comand_type: PipeType = PipeType::OnlyInput;
+    let mut current_command_tokens: Vec<String> = Vec::new();
+
+    while !command.is_empty() {
+        info!("Current commands left: {:?}", command);
+        info!("Current command token: {:?}", current_command_tokens);
+
+        // Build new command
+        if command.first().unwrap() == "|" || command.len() == 1 {
+            let command_name: String = current_command_tokens.remove(0);
+
+            pipe_arguments.push(Command {
+                command_name,
+                arguments: current_command_tokens.clone(),
+                strategy: ExecStrategy::Pipe(current_comand_type.clone()),
+            });
+
+            current_command_tokens = Vec::new();
+            command.remove(0);
+        }
+
+        while command.len() > 0 {
+            if command.first().unwrap() != "|" {
+                current_command_tokens.push(command.remove(0))
+            } else {
+                break;
+            }
+
+            if command.len() == 0 {
+                let command_name: String = current_command_tokens.remove(0);
+
+                pipe_arguments.push(Command {
+                    command_name,
+                    arguments: current_command_tokens.clone(),
+                    strategy: ExecStrategy::Pipe(PipeType::OnlyOutput),
+                });
+            }
+        }
+
+        if command.len() == 1 {
+            current_comand_type = PipeType::OnlyOutput
+        } else {
+            current_comand_type = PipeType::OutAndInput
+        }
+    }
+
+    pipe_arguments
+}
+
+fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> ExecStrategy {
     // Check if command_name contains slash
     if has_slash(command_name) {
         // TODO: Handle slash command
@@ -78,7 +143,7 @@ fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> Exec
     }
 
     // Check if command is a builtin utility
-    if builtin_names.contains(&command_name) {
+    if BUILTIN_NAMES.contains(&command_name) {
         ExecStrategy::Builtin
 
     // Check in PATH
@@ -87,6 +152,10 @@ fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> Exec
     } else {
         ExecStrategy::Undefined
     }
+}
+
+fn is_pipe(token: &str) -> bool {
+    token.contains("|") && !token.contains("||")
 }
 
 fn has_slash(token: &str) -> bool {
@@ -167,9 +236,50 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_is_pipe() {
+        assert_eq!(is_pipe("ls"), false);
+    }
+
+    #[test]
+    fn test_is_pipe_sequential_command() {
+        assert_eq!(is_pipe("ls || ls"), false);
+    }
+
+    #[test]
+    fn test_is_pipe_pipe() {
+        assert_eq!(is_pipe("ls | ls"), true);
+    }
+
+    #[test]
+    fn test_build_pipe_commands() {
+        let cmd: Vec<String> = vec![String::from("ls"), String::from("|"), String::from("echo")];
+
+        let expected_result = vec![
+            Command {
+                command_name: String::from("ls"),
+                arguments: Vec::<String>::new(),
+                strategy: ExecStrategy::Pipe(PipeType::OnlyOutput),
+            },
+            Command {
+                command_name: String::from("echo"),
+                arguments: Vec::<String>::new(),
+                strategy: ExecStrategy::Pipe(PipeType::OnlyInput),
+            },
+        ];
+
+        assert_eq!(expected_result, build_pipe_commands(cmd));
+    }
+
+    #[test]
+    fn test_test() {
+        assert_eq!(is_delimiter("ls"), false);
+    }
+
+    #[test]
     fn test_is_delimiter_false() {
         assert_eq!(is_delimiter("ls"), false);
     }
+
     #[test]
     fn test_is_delimiter_true() {
         assert_eq!(is_delimiter("||"), true);
