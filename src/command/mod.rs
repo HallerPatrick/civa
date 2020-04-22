@@ -2,7 +2,7 @@ pub mod error;
 pub mod executer;
 pub mod handler;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ExecStrategy {
     Builtin,
     // SpecialBuiltin,
@@ -14,11 +14,12 @@ pub enum ExecStrategy {
     Pipe(PipeType)
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum PipeType {
-    OnlyOutput,
-    OnlyInput,
-    OutAndInput
+    ReceivesInput,
+    PassesOutput,
+    OutAndInput,
+    Undefined
 }
 
 #[derive(Debug, PartialEq)]
@@ -26,6 +27,7 @@ pub struct Command {
     pub command_name: String,
     pub arguments: Vec<String>,
     pub strategy: ExecStrategy,
+    pub pipe_type: PipeType
 }
 
 impl Default for Command {
@@ -34,6 +36,7 @@ impl Default for Command {
             command_name: String::new(),
             arguments: Vec::new(),
             strategy: ExecStrategy::Undefined,
+            pipe_type: PipeType::Undefined
         }
     }
 }

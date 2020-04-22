@@ -50,3 +50,38 @@ fn get_path_values(var_name: &String) -> Option<String> {
 
     path_values
 }
+
+
+
+
+#[cfg(test)]
+mod test {
+
+    use std::env;
+
+    use super::*;
+
+    #[test]
+    fn test_get_path_values_success() {
+        let key = "CIVA_ENV";
+        let value = "SAMPLE_KEY";
+
+        env::set_var(key, value);
+
+        let result: Option<String> = get_path_values(&String::from(key));
+
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), value);
+    }
+
+
+    #[test]
+    fn test_get_path_values_unsuccessful() {
+        let key = "CIVA_ENV";
+
+        let result: Option<String> = get_path_values(&String::from(key));
+
+        assert!(result.is_none());
+    }
+
+}
