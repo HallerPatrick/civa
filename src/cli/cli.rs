@@ -24,18 +24,20 @@ use super::editor::built_editor;
 use super::editor::MyHelper;
 use rustyline::Editor;
 
-use termion::color::{Blue, Fg};
+use termion::color::{Blue, Fg, Yellow};
 use termion::style::Reset;
+
+use git::GitCli;
 
 pub struct Cli {
     // configuration: Configuration
-    pub editor: Editor<MyHelper>
+    pub editor: Editor<MyHelper>,
 }
 
 impl Cli {
     pub fn new() -> Self {
         Self {
-            editor: built_editor()
+            editor: built_editor(),
         }
     }
 
@@ -49,12 +51,16 @@ impl Cli {
     }
 
     pub fn update(&mut self) -> String {
-        // let size: (u16, u16) = terminal_size().unwrap();
-        // self.terminal_width = size.0;
-        // self.terminal_height = size.1;
+        let label = format!(
+            "{}{}{}",
+            Fg(Yellow),
+            GitCli::get_current_branch().trim_end(),
+            Reset
+        );
 
-        let p = format!("{}> ", Cli::get_cwd_label());
-        self.editor.helper_mut().expect("No helper").colored_prompt = format!("\x1b[1;32m{}\x1b[0m", p);
+        let p = format!("{} {}> ", Cli::get_cwd_label(), label);
+        self.editor.helper_mut().expect("No helper").colored_prompt =
+            format!("\x1b[1;32m{}\x1b[0m", p);
 
         p
     }
@@ -67,5 +73,4 @@ mod test {
     fn name() {
         unimplemented!();
     }
-
 }

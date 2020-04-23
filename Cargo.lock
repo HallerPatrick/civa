@@ -115,6 +115,7 @@ version = "0.1.0"
 dependencies = [
  "ansi_term 0.12.1",
  "clap",
+ "git",
  "log",
  "pretty_env_logger",
  "prettytable-rs",
@@ -238,6 +239,10 @@ dependencies = [
  "libc",
  "wasi",
 ]
+
+[[package]]
+name = "git"
+version = "0.1.0"
 
 [[package]]
 name = "hermit-abi"

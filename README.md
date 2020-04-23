@@ -22,17 +22,23 @@ A own implementation of a shell
 ## Todo
 
 - [x] Make Signal Handling proper (use rustyline or signal_hook?)
-- [ ] Implement PATH search and correct command handling (depending on slash)
+- [x] Clip Board
+- [x] Improve UI
 - [x] Handle command splitting
+- [x] Implement PATH search and correct command handling (depending on slash)
 - [ ] Handle piping
 - [ ] Make Alias System
-- [ ] Clip Board
-- [x] Improve UI
 - [ ] Integration of SVN
-- [ ] Thinking of ways to improve shell workflows (own opinion)
 - [ ] Build a config system (python?)
 - [ ] Tests! (look for good mock library)
+- [ ] Thinking of ways to improve shell workflows (own opinion)
 - [ ] Read more
+
+
+## Custom Builtins
+
+* ls -> [exa](https://github.com/ogham/exa)
+* cat -> [bat](https://github.com/sharkdp/bat)
 
 
 ## Sources
