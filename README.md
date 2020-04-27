@@ -30,6 +30,7 @@ A own implementation of a shell
 - [ ] Make Alias System
 - [ ] Integration of SVN
 - [ ] Build a config system (python?)
+- [ ] Use opiniated builtin alternatives to the GNU/Unix tools
 - [ ] Tests! (look for good mock library)
 - [ ] Thinking of ways to improve shell workflows (own opinion)
 - [ ] Read more
@@ -39,6 +40,7 @@ A own implementation of a shell
 
 * ls -> [exa](https://github.com/ogham/exa)
 * cat -> [bat](https://github.com/sharkdp/bat)
+* j -> [autojump](https://github.com/wting/autojump)
 
 
 ## Sources

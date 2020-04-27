@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bdb2b8e7-0c84-4f1d-a1a2-86d410e49f37" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="ONSDNIzp" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1au3a88G2TvKH1MwCSiPByAEki3" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RunManager" selected="Cargo Command.Test handler::test">
+    <configuration name="Test command::handler::test::test_handle_commands" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package civa --bin civa command::handler::test::test_handle_commands -- --exact" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test command::handler::test::test_split_pipe_2" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package civa --bin civa command::handler::test::test_split_pipe_2 -- --exact" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test handler::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package civa --bin civa command::handler::test" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo Command.Test handler::test" />
+        <item itemvalue="Cargo Command.Test command::handler::test::test_handle_commands" />
+        <item itemvalue="Cargo Command.Test command::handler::test::test_split_pipe_2" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+    <option name="version" value="2" />
+  </component>
+  <component name="SbtLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="$USER_HOME$/IdeaProjects/sample" value="PREVIEW" />
+      </map>
+    </option>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bdb2b8e7-0c84-4f1d-a1a2-86d410e49f37" name="Default Changelist" comment="" />
+      <created>1587571712027</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1587571712027</updated>
+      <workItem from="1587571717878" duration="222000" />
+      <workItem from="1587571959651" duration="10756000" />
+    </task>
+    <task id="LOCAL-00001" summary="Work on handling/parsing pipelines">
+      <created>1587576273516</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1587576273516</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Following some clippy instructions">
+      <created>1587578197487</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1587578197487</updated>
+    </task>
+    <task id="LOCAL-00003" summary="More rust idioms, make tests work again">
+      <created>1587597075814</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1587597075814</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Work on handling/parsing pipelines" />
+    <MESSAGE value="Following some clippy instructions" />
+    <MESSAGE value="More rust idioms, make tests work again" />
+    <option name="LAST_COMMIT_MESSAGE" value="More rust idioms, make tests work again" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1892" y="123" width="1720" height="857" key="#com.intellij.execution.junit2.states.ComparisonFailureState$DiffDialog" timestamp="1587575229246">
+      <screen x="1792" y="23" width="1920" height="1057" />
+    </state>
+    <state x="1892" y="123" width="1720" height="857" key="#com.intellij.execution.junit2.states.ComparisonFailureState$DiffDialog/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587575229246" />
+    <state x="531" y="68" key="CommitChangelistDialog2" timestamp="1587597075709">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="531" y="68" key="CommitChangelistDialog2/0.23.1792.1097@0.23.1792.1097" timestamp="1587597075709" />
+    <state x="2361" y="66" key="CommitChangelistDialog2/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587578197400" />
+    <state width="1792" height="245" key="GridCell.Tab.0.bottom" timestamp="1587597084713">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state width="1792" height="245" key="GridCell.Tab.0.bottom/0.23.1792.1097@0.23.1792.1097" timestamp="1587597084713" />
+    <state width="1920" height="245" key="GridCell.Tab.0.bottom/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587578075298" />
+    <state width="1792" height="245" key="GridCell.Tab.0.center" timestamp="1587597084713">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state width="1792" height="245" key="GridCell.Tab.0.center/0.23.1792.1097@0.23.1792.1097" timestamp="1587597084713" />
+    <state width="1920" height="245" key="GridCell.Tab.0.center/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587578075297" />
+    <state width="1792" height="245" key="GridCell.Tab.0.left" timestamp="1587597084713">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state width="1792" height="245" key="GridCell.Tab.0.left/0.23.1792.1097@0.23.1792.1097" timestamp="1587597084713" />
+    <state width="1920" height="245" key="GridCell.Tab.0.left/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587578075296" />
+    <state width="1792" height="245" key="GridCell.Tab.0.right" timestamp="1587597084713">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state width="1792" height="245" key="GridCell.Tab.0.right/0.23.1792.1097@0.23.1792.1097" timestamp="1587597084713" />
+    <state width="1920" height="245" key="GridCell.Tab.0.right/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587578075298" />
+    <state x="2261" y="190" key="SettingsEditor" timestamp="1587571940732">
+      <screen x="1792" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2261" y="190" key="SettingsEditor/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587571940732" />
+    <state x="523" y="297" key="Vcs.Push.Dialog.v2" timestamp="1587597077448">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="523" y="297" key="Vcs.Push.Dialog.v2/0.23.1792.1097@0.23.1792.1097" timestamp="1587597077448" />
+    <state x="2352" y="287" key="Vcs.Push.Dialog.v2/1792.23.1920.1057/0.23.1792.1097@1792.23.1920.1057" timestamp="1587578199224" />
+    <state x="561" y="268" width="670" height="676" key="search.everywhere.popup" timestamp="1587593298143">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="561" y="268" width="670" height="676" key="search.everywhere.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1587593298143" />
+  </component>
+</project>

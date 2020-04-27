@@ -65,12 +65,3 @@ impl Cli {
         p
     }
 }
-
-#[cfg(test)]
-mod test {
-
-    #[test]
-    fn name() {
-        unimplemented!();
-    }
-}

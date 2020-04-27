@@ -1,6 +1,7 @@
 mod builtins;
 mod cli;
 mod command;
+mod config;
 mod env;
 
 use clap::App;
@@ -8,12 +9,12 @@ use log::info;
 use pretty_env_logger::init;
 use rustyline::error::ReadlineError;
 
-
 use crate::cli::cli::Cli;
 use crate::command::executer::exec_sequentially;
 use crate::command::handler::handle_commands;
 use crate::env::environment::EnvManager;
-#[macro_use] extern crate prettytable;
+#[macro_use]
+extern crate prettytable;
 
 fn main() {
     App::new("civa")
@@ -30,7 +31,6 @@ fn main() {
 }
 
 fn main_loop() {
-
     let env_manager = EnvManager::new();
     info!("Init env manager");
 

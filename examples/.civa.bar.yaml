@@ -1,0 +1,42 @@
+#
+#
+# Exisiting Components:
+#     - cwd
+#     - svn
+#     - prompt
+#     - user
+#
+---  # Component Order
+component_order:  # default order
+    - cwd
+    - svn
+    - prompt
+
+# Style options:
+#     - normal
+#     - bold
+#     - italic
+#
+# Color options:
+#     - red
+#     - blue
+#     - yellow
+#     - black
+#     - white
+#     - green
+#
+
+---
+cwd:  # default
+    - style: bold
+    - color: blue
+
+---
+svn:
+    - style: bold
+    - color: yellow
+
+---
+prompt:
+    - style: bold
+    - color: blue

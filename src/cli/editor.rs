@@ -10,11 +10,11 @@ use rustyline::Helper;
 use rustyline::{Cmd, CompletionType, Config, Context, EditMode, Editor, KeyPress};
 
 pub struct MyHelper {
-   pub completer: FilenameCompleter,
-   pub highlighter: MatchingBracketHighlighter,
-   pub validator: MatchingBracketValidator,
-   pub hinter: HistoryHinter,
-   pub colored_prompt: String,
+    pub completer: FilenameCompleter,
+    pub highlighter: MatchingBracketHighlighter,
+    pub validator: MatchingBracketValidator,
+    pub hinter: HistoryHinter,
+    pub colored_prompt: String,
 }
 
 impl Helper for MyHelper {}
@@ -76,7 +76,7 @@ impl Validator for MyHelper {
         self.validator.validate_while_typing()
     }
 }
-pub fn built_editor()  -> Editor<MyHelper> {
+pub fn built_editor() -> Editor<MyHelper> {
     let config = Config::builder()
         .history_ignore_space(true)
         .completion_type(CompletionType::List)
