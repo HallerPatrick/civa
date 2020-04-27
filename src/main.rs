@@ -1,7 +1,7 @@
 mod builtins;
 mod cli;
 mod command;
-mod config;
+pub mod config;
 mod env;
 
 use clap::App;
@@ -13,6 +13,7 @@ use crate::cli::cli::Cli;
 use crate::command::executer::exec_sequentially;
 use crate::command::handler::handle_commands;
 use crate::env::environment::EnvManager;
+
 #[macro_use]
 extern crate prettytable;
 

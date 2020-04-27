@@ -1,4 +1,4 @@
-mod command_bar;
+pub mod command_bar;
 mod error;
 
 #[derive(Debug)]
@@ -12,27 +12,59 @@ pub enum ColorName {
 }
 
 #[derive(Debug)]
-pub enum Style {
+pub enum StyleName {
     BOLD,
     NORMAL,
     ITALIC,
 }
 
 #[derive(Debug)]
+pub struct Style {
+    pub style_name: StyleName,
+}
+
+impl Style {
+    fn default() -> Self {
+        Self {
+            style_name: StyleName::NORMAL,
+        }
+    }
+
+    fn from_string(style_name: &str) -> Style {
+        let style = match style_name.to_lowercase().as_str() {
+            "bold" => StyleName::BOLD,
+            "normal" => StyleName::NORMAL,
+            "italic" => StyleName::ITALIC,
+            _ => StyleName::NORMAL,
+        };
+
+        Self { style_name: style }
+    }
+}
+
+#[derive(Debug)]
 pub struct Color {
-    color_name: Option<ColorName>,
+    pub color_name: ColorName,
 }
 
 impl Color {
     fn default() -> Self {
         Self {
-            color_name: Some(ColorName::WHITE),
+            color_name: ColorName::WHITE,
         }
     }
-}
 
-impl Color {
-    fn from_rgb() {}
-    fn from_hex() {}
-    fn from_name() {}
+    fn from_string(color_name: &str) -> Self {
+        let color = match color_name.to_lowercase().as_str() {
+            "red" => ColorName::RED,
+            "blue" => ColorName::BLUE,
+            "yellow" => ColorName::YELLOW,
+            "black" => ColorName::BLACK,
+            "white" => ColorName::WHITE,
+            "green" => ColorName::GREEN,
+            _ => ColorName::WHITE,
+        };
+
+        Self { color_name: color }
+    }
 }

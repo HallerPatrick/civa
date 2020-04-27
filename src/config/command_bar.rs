@@ -27,40 +27,55 @@ use super::error::ConfigError;
 use super::{Color, Style};
 
 #[derive(Debug)]
-enum CommandBarComponents {
+pub enum CommandBarComponents {
     CWD,
     SVN,
     PROMPT,
-    INPUTFIELD,
     USER,
+    UNDEFINED,
 }
 
 #[derive(Debug)]
-struct Component {
-    color: Color,
-    style: Style,
-    component_type: CommandBarComponents,
+pub struct Component {
+    pub color: Color,
+    pub style: Style,
+    pub component_type: CommandBarComponents,
 }
 
 impl Component {
+    fn from_string(component_name: &str, color: Color, style: Style) -> Self {
+        let comp = match component_name.to_lowercase().as_str() {
+            "cwd" => CommandBarComponents::CWD,
+            "svn" => CommandBarComponents::SVN,
+            "prompt" => CommandBarComponents::PROMPT,
+            "user" => CommandBarComponents::USER,
+            _ => CommandBarComponents::UNDEFINED,
+        };
+
+        Self {
+            component_type: comp,
+            color,
+            style,
+        }
+    }
     fn default(component: CommandBarComponents) -> Self {
         Self {
             color: Color::default(),
-            style: Style::NORMAL,
+            style: Style::default(),
             component_type: component,
         }
     }
 }
 
 #[derive(Debug)]
-struct CommandBarConfig {
-    component: Vec<Component>,
+pub struct CommandBarConfig {
+    pub components: Vec<Component>,
 }
 
 impl CommandBarConfig {
     fn default() -> Self {
         Self {
-            component: vec![
+            components: vec![
                 Component::default(CommandBarComponents::CWD),
                 Component::default(CommandBarComponents::SVN),
                 Component::default(CommandBarComponents::PROMPT),
@@ -69,7 +84,7 @@ impl CommandBarConfig {
     }
 }
 
-fn command_bar_config_reader(config_file: &str) -> Result<CommandBarConfig, ConfigError> {
+pub fn command_bar_config_reader(config_file: &str) -> Result<CommandBarConfig, ConfigError> {
     let content = match fs::read_to_string(config_file) {
         Ok(c) => c,
         Err(_) => return Ok(CommandBarConfig::default()),
@@ -84,13 +99,33 @@ fn command_bar_config_reader(config_file: &str) -> Result<CommandBarConfig, Conf
         Ok(c) => c,
     };
 
-    config_builder(&mut config);
-
-    Ok(CommandBarConfig::default())
+    Ok(config_builder(&mut config))
 }
 
-fn config_builder(config: &mut Vec<Yaml>) {
-    info!("{:?}", config);
+fn config_builder(config: &mut Vec<Yaml>) -> CommandBarConfig {
+    let config = &config[0];
+    let component_order: Vec<&str> = config["component_order"]
+        .as_vec()
+        .unwrap()
+        .iter()
+        .map(|c| c.as_str().unwrap())
+        .collect();
+
+    let mut components: Vec<Component> = Vec::new();
+
+    for component_name in component_order {
+        info!("Component: {}", component_name);
+        let component_config = &config[component_name];
+        info!("With config: {:?}", component_config);
+
+        components.push(Component::from_string(
+            component_name,
+            Color::from_string(component_config["color"].as_str().unwrap()),
+            Style::from_string(component_config["style"].as_str().unwrap()),
+        ))
+    }
+
+    CommandBarConfig { components }
 }
 
 #[cfg(test)]

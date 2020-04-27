@@ -26,17 +26,14 @@ component_order:  # default order
 #     - green
 #
 
----
 cwd:  # default
-    - style: bold
-    - color: blue
+    style: bold
+    color: yellow
 
----
 svn:
-    - style: bold
-    - color: yellow
+    style: bold
+    color: yellow
 
----
 prompt:
-    - style: bold
-    - color: blue
+    style: bold
+    color: blue
