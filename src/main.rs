@@ -1,7 +1,7 @@
 mod builtins;
 mod cli;
 mod command;
-pub mod config;
+mod config;
 mod env;
 
 use clap::App;
@@ -25,6 +25,7 @@ fn main() {
         .get_matches();
 
     init();
+
     info!("Init Logger");
 
     // Start loop

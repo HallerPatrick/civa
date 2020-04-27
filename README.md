@@ -26,6 +26,7 @@ A own implementation of a shell
 - [x] Improve UI
 - [x] Handle command splitting
 - [x] Implement PATH search and correct command handling (depending on slash)
+- [ ] Autocompletion menu and man page/command line autocompletion
 - [ ] Handle piping
 - [ ] Make Alias System
 - [ ] Integration of SVN
