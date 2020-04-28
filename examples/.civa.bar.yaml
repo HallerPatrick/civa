@@ -33,7 +33,11 @@ cwd:  # default
 svn:
     style: bold
     color: yellow
+    sorround:
+        left: "["
+        right: "]"
 
 prompt:
     style: bold
     color: blue
+    symbol: "λ"

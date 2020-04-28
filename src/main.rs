@@ -9,9 +9,7 @@ use log::info;
 use pretty_env_logger::init;
 use rustyline::error::ReadlineError;
 
-use std::net;
-
-use crate::cli::cli::Cli;
+use crate::cli::Cli;
 use crate::command::executer::exec_sequentially;
 use crate::command::handler::handle_commands;
 use crate::env::environment::EnvManager;

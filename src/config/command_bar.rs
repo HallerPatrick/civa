@@ -36,14 +36,37 @@ pub enum CommandBarComponents {
 }
 
 #[derive(Debug)]
+pub struct Sorround {
+    pub left: String,
+    pub right: String,
+}
+
+impl Sorround {
+    fn default() -> Self {
+        Self {
+            left: String::new(),
+            right: String::new(),
+        }
+    }
+
+    fn new(left: &str, right: &str) -> Self {
+        Self {
+            left: String::from(left),
+            right: String::from(right),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Component {
     pub color: Color,
     pub style: Style,
+    pub sorround: Sorround,
     pub component_type: CommandBarComponents,
 }
 
 impl Component {
-    fn from_string(component_name: &str, color: Color, style: Style) -> Self {
+    fn from_string(component_name: &str, color: Color, style: Style, sorround: Sorround) -> Self {
         let comp = match component_name.to_lowercase().as_str() {
             "cwd" => CommandBarComponents::CWD,
             "svn" => CommandBarComponents::SVN,
@@ -56,6 +79,7 @@ impl Component {
             component_type: comp,
             color,
             style,
+            sorround,
         }
     }
     fn default(component: CommandBarComponents) -> Self {
@@ -63,6 +87,26 @@ impl Component {
             color: Color::default(),
             style: Style::default(),
             component_type: component,
+            sorround: Sorround::default(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Prompt {
+    pub symbol: String,
+    pub style: Style,
+    pub color: Color,
+    pub sorround: Sorround,
+}
+
+impl Prompt {
+    fn default() -> Self {
+        Self {
+            symbol: String::from(">"),
+            style: Style::default(),
+            color: Color::default(),
+            sorround: Sorround::default(),
         }
     }
 }
@@ -70,9 +114,10 @@ impl Component {
 #[derive(Debug)]
 pub struct CommandBarConfig {
     pub components: Vec<Component>,
+    pub prompt: Prompt,
 }
 
-impl CommandBarConfig {
+impl<'a> CommandBarConfig {
     fn default() -> Self {
         Self {
             components: vec![
@@ -80,6 +125,7 @@ impl CommandBarConfig {
                 Component::default(CommandBarComponents::SVN),
                 Component::default(CommandBarComponents::PROMPT),
             ],
+            prompt: Prompt::default(),
         }
     }
 }
@@ -90,7 +136,7 @@ pub fn command_bar_config_reader(config_file: &str) -> Result<CommandBarConfig, 
         Err(_) => return Ok(CommandBarConfig::default()),
     };
 
-    let mut config = match YamlLoader::load_from_str(content.as_str()) {
+    let config = match YamlLoader::load_from_str(content.as_str()) {
         Err(err) => {
             return Err(ConfigError {
                 message: format!("{:?}", err),
@@ -99,10 +145,10 @@ pub fn command_bar_config_reader(config_file: &str) -> Result<CommandBarConfig, 
         Ok(c) => c,
     };
 
-    Ok(config_builder(&mut config))
+    Ok(config_builder(config))
 }
 
-fn config_builder(config: &mut Vec<Yaml>) -> CommandBarConfig {
+fn config_builder(config: Vec<Yaml>) -> CommandBarConfig {
     let config = &config[0];
     let component_order: Vec<&str> = config["component_order"]
         .as_vec()
@@ -118,12 +164,34 @@ fn config_builder(config: &mut Vec<Yaml>) -> CommandBarConfig {
         let component_config = &config[component_name];
         info!("With config: {:?}", component_config);
 
+        let color = match component_config["color"].as_str() {
+            Some(color_string) => Color::from_string(color_string),
+            None => Color::default(),
+        };
+
+        let style = match component_config["style"].as_str() {
+            Some(style_string) => Style::from_string(style_string),
+            None => Style::default(),
+        };
+
+        let sorround_left = component_config["sorround"]["left"]
+            .as_str()
+            .unwrap_or_default();
+        let sorround_right = component_config["sorround"]["right"]
+            .as_str()
+            .unwrap_or_default();
+
+        let sorround = Sorround::new(sorround_left, sorround_right);
+
         components.push(Component::from_string(
             component_name,
-            Color::from_string(component_config["color"].as_str().unwrap()),
-            Style::from_string(component_config["style"].as_str().unwrap()),
+            color,
+            style,
+            sorround,
         ))
     }
+
+    // TODO: Add prompt
 
     CommandBarConfig { components }
 }
