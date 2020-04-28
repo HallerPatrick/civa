@@ -35,7 +35,6 @@ use rustyline::Editor;
 use termion::color as termion_colors;
 use termion::color::Fg;
 use termion::style;
-use termion::style::Reset;
 
 pub struct Cli {
     pub configuration: CommandBarConfig,
