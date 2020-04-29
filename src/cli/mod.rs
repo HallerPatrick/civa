@@ -107,7 +107,6 @@ impl Cli {
                     "{}",
                     GitCli::get_current_branch().trim_end().to_string()
                 )),
-                CommandBarComponents::PROMPT => vec.push(String::from("λ")),
                 CommandBarComponents::USER => vec.push(format!("{}", Cli::get_current_user())),
                 _ => {}
             }
@@ -129,6 +128,8 @@ impl Cli {
 
             vec.push(format!("{}", style::Reset));
         }
+
+        // TODO: Add prompt
 
         info!("{:?}", vec);
         vec.join("")

@@ -159,6 +159,8 @@ fn config_builder(config: Vec<Yaml>) -> CommandBarConfig {
 
     let mut components: Vec<Component> = Vec::new();
 
+    let mut maybe_prompt: Option<Prompt> = None;
+
     for component_name in component_order {
         info!("Component: {}", component_name);
         let component_config = &config[component_name];
@@ -183,6 +185,25 @@ fn config_builder(config: Vec<Yaml>) -> CommandBarConfig {
 
         let sorround = Sorround::new(sorround_left, sorround_right);
 
+        if component_name == "prompt" {
+            let symbol_string = component_config["symbol"].as_str();
+
+            info!("Promp symbol: {}", symbol_string.unwrap());
+
+            let symbol = match symbol_string {
+                Some(s) => String::from(s),
+                None => String::from(">"),
+            };
+
+            maybe_prompt = Some(Prompt {
+                symbol,
+                style,
+                color,
+                sorround,
+            });
+            continue;
+        }
+
         components.push(Component::from_string(
             component_name,
             color,
@@ -191,9 +212,13 @@ fn config_builder(config: Vec<Yaml>) -> CommandBarConfig {
         ))
     }
 
-    // TODO: Add prompt
-
-    CommandBarConfig { components }
+    match maybe_prompt {
+        Some(prompt) => CommandBarConfig { components, prompt },
+        None => CommandBarConfig {
+            components,
+            prompt: Prompt::default(),
+        },
+    }
 }
 
 #[cfg(test)]
