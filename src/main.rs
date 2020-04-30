@@ -46,10 +46,10 @@ fn main_loop() {
             Ok(line) => {
                 cli.editor.add_history_entry(line.as_str());
                 info!("Read input line {}", line);
-                let commands = handle_commands(line.as_str(), &env_manager);
+                let mut commands = handle_commands(line.as_str(), &env_manager);
 
                 info!("Executing commands sequentially: {:?}", commands);
-                exec_sequentially(commands);
+                exec_sequentially(&mut commands);
             }
             // "Soft Reset" the shell
 
