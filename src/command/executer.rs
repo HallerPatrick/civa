@@ -43,7 +43,7 @@ pub fn exec_sequentially(commands: Vec<Command>) -> ExitStatus {
 
 fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
     match command.strategy {
-        ExecStrategy::Builtin => match executer::executer(command) {
+        ExecStrategy::Builtin => match executer::executor(command) {
             Ok(exit_status) => Ok(exit_status),
             Err(err) => Err(CommandError::from(err)),
         },

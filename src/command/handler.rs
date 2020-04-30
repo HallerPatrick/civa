@@ -35,9 +35,8 @@ use crate::builtins::BUILTIN_NAMES;
 use crate::command::{Command, ExecStrategy, PipeType};
 use crate::env::environment::EnvManager;
 
-use log::{debug, info};
 use crate::command::PipeType::Undefined;
-
+use log::{debug, info};
 
 type CommandTokenCollection = Vec<Vec<String>>;
 
@@ -46,7 +45,6 @@ pub fn handle_commands(command_string: &str, env_manager: &EnvManager) -> Vec<Co
 
     // Only splits sequential commands, not pipes
     let raw_commands: CommandTokenCollection = split_commands(command_string);
-
 
     for mut command in raw_commands {
         // Pipes
@@ -120,8 +118,6 @@ fn build_pipe_commands(command: Vec<String>, env_manager: &EnvManager) -> Vec<Co
             strategy,
             pipe_type: current_pipe_type,
         });
-
-
     }
     commands
 }
@@ -157,7 +153,7 @@ fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> Exec
     if BUILTIN_NAMES.contains(&command_name) {
         ExecStrategy::Builtin
 
-        // Check in PATH
+    // Check in PATH
     } else if env_manager.has_command(command_name) {
         ExecStrategy::PathCommand
     } else {
@@ -236,7 +232,7 @@ fn is_delimiter(token: &str) -> bool {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     #[test]
@@ -255,19 +251,11 @@ mod test {
         assert_eq!(split_pipe(pip_commands), result);
     }
 
-
     #[test]
     fn test_split_pipe_2() {
-        let pip_commands = vec![
-            String::from("echo"),
-            String::from("|"),
-            String::from("exa")
-        ];
+        let pip_commands = vec![String::from("echo"), String::from("|"), String::from("exa")];
 
-        let result = vec![
-            vec![String::from("echo")],
-            vec![String::from("exa")]
-        ];
+        let result = vec![vec![String::from("echo")], vec![String::from("exa")]];
         assert_eq!(split_pipe(pip_commands), result);
     }
 
@@ -431,31 +419,32 @@ mod test {
 
         let commands: Vec<Command> = handle_commands(command_string, &env_manager);
 
-        let expected_result = vec![Command {
-            command_name: String::from("cd"),
-            arguments: vec![String::from("..")],
-            strategy: ExecStrategy::Builtin,
-            pipe_type: PipeType::Undefined,
-        }, Command {
-            command_name: String::from("/bin/ls"),
-            arguments: vec![],
-            strategy: ExecStrategy::PathCommand,
-            pipe_type: Undefined,
-        },
-       Command {
-           command_name: String::from("echo"),
-           arguments: vec![],
-           strategy: ExecStrategy::PathCommand,
-           pipe_type: PipeType::PassesOutput,
-       },
-       Command {
-           command_name: String::from("exa"),
-           arguments: vec![],
-           strategy: ExecStrategy::PathCommand,
-           pipe_type: PipeType::ReceivesInput,
-       }
+        let expected_result = vec![
+            Command {
+                command_name: String::from("cd"),
+                arguments: vec![String::from("..")],
+                strategy: ExecStrategy::Builtin,
+                pipe_type: PipeType::Undefined,
+            },
+            Command {
+                command_name: String::from("/bin/ls"),
+                arguments: vec![],
+                strategy: ExecStrategy::PathCommand,
+                pipe_type: Undefined,
+            },
+            Command {
+                command_name: String::from("echo"),
+                arguments: vec![],
+                strategy: ExecStrategy::PathCommand,
+                pipe_type: PipeType::PassesOutput,
+            },
+            Command {
+                command_name: String::from("exa"),
+                arguments: vec![],
+                strategy: ExecStrategy::PathCommand,
+                pipe_type: PipeType::ReceivesInput,
+            },
         ];
-
 
         assert_eq!(expected_result, commands);
     }

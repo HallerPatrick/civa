@@ -229,14 +229,5 @@ mod test {
     #[test]
     fn test_config_yaml() {
         let c = command_bar_config_reader("examples/.civa.bar.yaml");
-
-        assert_eq!(format!("{:?}", c), "")
-    }
-
-    #[test]
-    fn test_config_yal() {
-        let c = command_bar_config_reader("examples/.civa.bar.yaml");
-
-        assert_eq!(format!("{:?}", c), "")
     }
 }

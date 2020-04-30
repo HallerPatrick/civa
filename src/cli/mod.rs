@@ -71,67 +71,149 @@ impl Cli {
         var("USER").unwrap_or_default()
     }
 
+    fn push_color(vec: &mut Vec<String>, color_name: &ColorName) {
+        // Paint Color
+        match color_name {
+            ColorName::YELLOW => {
+                vec.push(format!("{}", Fg(termion_colors::Yellow)));
+            }
+            ColorName::WHITE => {
+                vec.push(format!("{}", Fg(termion_colors::White)));
+            }
+
+            ColorName::BLUE => {
+                vec.push(format!("{}", Fg(termion_colors::Blue)));
+            }
+
+            ColorName::RED => {
+                vec.push(format!("{}", Fg(termion_colors::Red)));
+            }
+            ColorName::GREEN => {
+                vec.push(format!("{}", Fg(termion_colors::Green)));
+            }
+            _ => {
+                vec.push(format!("{}", Fg(termion_colors::Blue)));
+            }
+        };
+    }
+
+    fn push_component_content(vec: &mut Vec<String>, component_type: &CommandBarComponents) {
+        match component_type {
+            CommandBarComponents::CWD => vec.push(Cli::get_cwd_label()),
+            CommandBarComponents::SVN => vec.push(format!(
+                "{}",
+                GitCli::get_current_branch().trim_end().to_string()
+            )),
+            CommandBarComponents::USER => vec.push(format!("{}", Cli::get_current_user())),
+            _ => {}
+        }
+    }
+
+    fn push_style(vec: &mut Vec<String>, style_name: &StyleName) {
+        match style_name {
+            StyleName::BOLD => {
+                vec.push(format!("{}", style::Bold));
+            }
+
+            StyleName::ITALIC => {
+                vec.push(format!("{}", style::Italic));
+            }
+            _ => {}
+        };
+    }
+
     fn build_cmd_bar(&self) -> String {
         let mut vec: Vec<String> = Vec::with_capacity(self.configuration.components.len());
         for config in &self.configuration.components {
-            // Paint Color
-            match config.color.color_name {
-                ColorName::YELLOW => {
-                    vec.push(format!("{}", Fg(termion_colors::Yellow)));
-                }
-                ColorName::WHITE => {
-                    vec.push(format!("{}", Fg(termion_colors::White)));
-                }
-
-                ColorName::BLUE => {
-                    vec.push(format!("{}", Fg(termion_colors::Blue)));
-                }
-
-                ColorName::RED => {
-                    vec.push(format!("{}", Fg(termion_colors::Blue)));
-                }
-                ColorName::GREEN => {
-                    vec.push(format!("{}", Fg(termion_colors::Blue)));
-                }
-                _ => {
-                    vec.push(format!("{}", Fg(termion_colors::Blue)));
-                }
-            };
+            Cli::push_color(&mut vec, &config.color.color_name);
 
             vec.push(config.sorround.left.clone());
 
             // Build Component Content
-            match config.component_type {
-                CommandBarComponents::CWD => vec.push(Cli::get_cwd_label()),
-                CommandBarComponents::SVN => vec.push(format!(
-                    "{}",
-                    GitCli::get_current_branch().trim_end().to_string()
-                )),
-                CommandBarComponents::USER => vec.push(format!("{}", Cli::get_current_user())),
-                _ => {}
-            }
+            Cli::push_component_content(&mut vec, &config.component_type);
 
             vec.push(config.sorround.right.clone());
             vec.push(String::from(" "));
 
             // Set Style
-            match config.style.style_name {
-                StyleName::BOLD => {
-                    vec.push(format!("{}", style::Bold));
-                }
-
-                StyleName::ITALIC => {
-                    vec.push(format!("{}", style::Italic));
-                }
-                _ => {}
-            };
+            Cli::push_style(&mut vec, &config.style.style_name);
 
             vec.push(format!("{}", style::Reset));
         }
 
-        // TODO: Add prompt
+        // Add prompt
+        Cli::push_color(&mut vec, &self.configuration.prompt.color.color_name);
+        vec.push(self.configuration.prompt.sorround.left.clone());
+        vec.push(self.configuration.prompt.symbol.clone());
+        vec.push(self.configuration.prompt.sorround.right.clone());
+        vec.push(String::from(" "));
+        Cli::push_style(&mut vec, &self.configuration.prompt.style.style_name);
+        vec.push(format!("{}", style::Reset));
 
         info!("{:?}", vec);
         vec.join("")
+    }
+}
+
+#[cfg(test)]
+mod tests_push_color {
+
+    use super::*;
+
+    #[test]
+    fn push_color_blue() {
+        let mut vec: Vec<String> = Vec::new();
+
+        Cli::push_color(&mut vec, &ColorName::BLUE);
+
+        assert_eq!(vec.len(), 1);
+        assert_eq!(vec.first().unwrap(), "\u{1b}[38;5;4m");
+    }
+
+    #[test]
+    fn push_color_yellow() {
+        let mut vec: Vec<String> = Vec::new();
+
+        Cli::push_color(&mut vec, &ColorName::YELLOW);
+
+        assert_eq!(vec.len(), 1);
+        assert_eq!(vec.first().unwrap(), "\u{1b}[38;5;3m");
+    }
+
+    #[test]
+    fn push_color_red() {
+        let mut vec: Vec<String> = Vec::new();
+
+        Cli::push_color(&mut vec, &ColorName::RED);
+
+        assert_eq!(vec.len(), 1);
+        assert_eq!(vec.first().unwrap(), "\u{1b}[38;5;1m");
+    }
+
+    #[test]
+    fn push_color_green() {
+        let mut vec: Vec<String> = Vec::new();
+
+        Cli::push_color(&mut vec, &ColorName::GREEN);
+
+        assert_eq!(vec.len(), 1);
+        assert_eq!(vec.first().unwrap(), "\u{1b}[38;5;2m");
+    }
+}
+
+#[cfg(test)]
+mod tests_push_style {
+
+    use super::*;
+
+    #[test]
+    fn push_style() {
+        let mut vec: Vec<String> = Vec::new();
+
+        Cli::push_style(&mut vec, &StyleName::NORMAL);
+        Cli::push_style(&mut vec, &StyleName::BOLD);
+        Cli::push_style(&mut vec, &StyleName::ITALIC);
+
+        assert_eq!(vec!["\u{1b}[1m", "\u{1b}[3m"], vec);
     }
 }

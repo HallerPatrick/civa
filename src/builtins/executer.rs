@@ -3,10 +3,10 @@ use crate::command::Command;
 use super::cd;
 use super::error::BuiltinError;
 use super::exit_status::ExitStatus;
-use super::BUILTIN_NAMES;
 use super::penv;
+use super::BUILTIN_NAMES;
 
-pub fn executer(command: Command) -> Result<ExitStatus, BuiltinError> {
+pub fn executor(command: Command) -> Result<ExitStatus, BuiltinError> {
     if BUILTIN_NAMES.contains(&command.command_name.as_str()) {
         match command.command_name.as_str() {
             "cd" => cd::cd(command.arguments.first()),
@@ -31,34 +31,45 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_executer_no_builtin_found() {
+    fn test_executor_no_builtin_found() {
         let mut cmd: Command = Command::default();
         cmd.command_name = String::from("test");
 
-        let result = executer(cmd);
+        let result = executor(cmd);
 
         assert_eq!(result.is_err(), true);
     }
 
     #[test]
-    fn test_executer_builtin_found() {
+    fn test_executor_builtin_found() {
         let mut cmd: Command = Command::default();
         cmd.command_name = String::from("cd");
 
-        let result = executer(cmd);
+        let result = executor(cmd);
 
         assert_eq!(result.is_ok(), true);
     }
 
     #[test]
-    fn test_executer_quit() {
+    fn build_found_with_args() {
         let mut cmd: Command = Command::default();
-        cmd.command_name = String::from(":q");
+        cmd.command_name = String::from("penv");
+        cmd.arguments = vec![String::from("PATH")];
 
-        let result = executer(cmd);
+        let result = executor(cmd);
 
         assert_eq!(result.is_ok(), true);
 
-        assert_eq!(result.ok(), Some(ExitStatus { code: 0 }));
+        assert_eq!(result.ok(), Some(ExitStatus { code: 1 }));
+    }
+
+    #[test]
+    fn build_found_failing() {
+        let mut cmd: Command = Command::default();
+        cmd.command_name = String::from("penv");
+
+        let result = executor(cmd);
+
+        assert!(result.is_err());
     }
 }

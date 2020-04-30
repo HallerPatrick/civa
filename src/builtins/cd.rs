@@ -42,8 +42,6 @@ mod test {
         assert!(result.is_ok());
     }
 
-
-
     #[test]
     fn test_cd_to_not_existing_dir() {
         let result = cd(Some(&String::from("not_existing_dir")));
