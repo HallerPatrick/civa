@@ -150,7 +150,7 @@ impl Cli {
         Cli::push_style(&mut vec, &self.configuration.prompt.style.style_name);
         vec.push(format!("{}", style::Reset));
 
-        info!("{:?}", vec);
+        // info!("{:?}", vec);
         vec.join("")
     }
 }

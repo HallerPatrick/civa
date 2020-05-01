@@ -1,4 +1,3 @@
-use std::io::Read;
 use std::process::Command as SysCommand;
 use std::process::Stdio;
 
@@ -17,7 +16,6 @@ use crate::command::{Command, ExecStrategy, PipeType};
 // If it just a sequential, then throw exit code etc away...for now
 //
 //
-//TODO: Solve Bug where pipeline output is not passed to stdout
 pub fn exec_sequentially(commands: &mut Vec<Command>) -> ExitStatus {
     let mut current_status: ExitStatus = ExitStatus { code: -1 };
 
@@ -79,52 +77,63 @@ fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
 }
 
 fn execute_pipe(commands: &mut Vec<Command>) {
-    let mut output: Vec<u8> = Vec::new();
-    pipe_consumer(commands, None, &mut output);
-    info!("Ouput: {}", String::from_utf8(output).unwrap());
+    pipe_consumer(commands, None);
 }
 
-#[allow(unused_must_use)]
-fn pipe_consumer(
-    vec: &mut Vec<Command>,
-    out: Option<std::process::ChildStdout>,
-    output: &mut Vec<u8>,
-) {
-    if vec.is_empty() {
-        out.unwrap().read(output);
+// TODO: Fix Bug
+// BUG: When pipe ends in a 'cat' command, sometimes the output is not finished corretly
+// and rustyline cannot find the location to place the new cursor and command bar is not displayed
+fn pipe_consumer(commands: &mut Vec<Command>, stdout: Option<std::process::ChildStdout>) {
+    if commands.is_empty() {
         return;
     }
 
-    let cmd = vec.pop().unwrap();
+    let cmd = commands.pop().unwrap();
 
-    if cmd.pipe_type == PipeType::Undefined {
-        return;
-    }
+    // If the end of pipe is reached construct a non pipe command which takes
+    // only only previous stdout
+    if commands.is_empty() || commands.first().unwrap().pipe_type == PipeType::Undefined {
+        info!("Called last");
+        let process = SysCommand::new(cmd.command_name)
+            .args(cmd.arguments)
+            .stdin(stdout.unwrap())
+            .spawn();
 
-    match out {
-        Some(stdout) => {
-            let current_command = SysCommand::new(cmd.command_name)
-                .args(cmd.arguments)
-                .stdout(Stdio::piped())
-                .stdin(stdout)
-                .spawn()
-                .expect("Failure");
-
-            // print!("{:?}", current_command);
-            pipe_consumer(vec, current_command.stdout, output);
+        match process {
+            Ok(mut c) => match c.wait() {
+                Ok(_) => {}
+                Err(_) => info!("Could not get exit code of process"),
+            },
+            Err(_) => info!("Could not find command "),
         }
+
+        return;
+    }
+
+    match stdout {
+        // The is stdout of a previous command, pipe it in new command
+        Some(prev_stdout) => {
+            info!("Called middle");
+            let process = SysCommand::new(cmd.command_name)
+                .args(cmd.arguments)
+                .stdin(prev_stdout)
+                .stdout(Stdio::piped())
+                .spawn()
+                .expect("MEEEEH");
+            pipe_consumer(commands, process.stdout);
+        }
+        // There is no previous stdout -> First called command of pipe
         None => {
-            let current_command = SysCommand::new(cmd.command_name)
+            info!("Called first");
+            let process = SysCommand::new(cmd.command_name)
                 .args(cmd.arguments)
                 .stdout(Stdio::piped())
                 .spawn()
-                .expect("Failure");
+                .expect("MEEEEH");
 
-            // print!("{:?}", String::from_utf8(current_command.stdin));
-
-            pipe_consumer(vec, current_command.stdout, output);
+            pipe_consumer(commands, process.stdout);
         }
-    };
+    }
 }
 
 #[cfg(test)]
@@ -154,6 +163,9 @@ mod tests {
 
     #[test]
     fn pipes() {
+        // There are three types of commands we have to construct
+        //
+        // 1. A Command with a pipe for stdout
         let cmd = SysCommand::new("ls")
             .arg("-a")
             .arg(".")
@@ -161,13 +173,22 @@ mod tests {
             .spawn()
             .expect("failed command");
 
+        // 2. A command which takes the first commands stdout as stding and a new pipe for stdout
         let cmd2 = SysCommand::new("cat")
             .stdin(cmd.stdout.unwrap())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failure cat");
+
+        // 3. A command which takes the second commands stdout as stdin and produces the stdout to
+        //    parent stdout
+        let cmd3 = SysCommand::new("cat")
+            .stdin(cmd2.stdout.unwrap())
             .output()
             .expect("Failure cat");
 
         let expected_result = helper_get_files_in_dir(".");
-        let mut result: Vec<String> = String::from_utf8(cmd2.stdout)
+        let mut result: Vec<String> = String::from_utf8(cmd3.stdout)
             .unwrap()
             .split("\n")
             .map(|s| String::from(s))
@@ -182,8 +203,8 @@ mod tests {
     }
 
     #[test]
-    fn pipe() {
-        let cmds = vec![
+    fn pipe_consumer_test() {
+        let mut cmds = vec![
             Command {
                 command_name: String::from("ls"),
                 arguments: vec![String::from("-a"), String::from(".")],
@@ -198,10 +219,9 @@ mod tests {
             },
         ];
 
-        let expected_result = helper_get_files_in_dir(".");
+        // let expected_result = helper_get_files_in_dir(".");
 
-        // let out = execute_pipe(cmds);
-        // print!("{:?}", out);
+        pipe_consumer(&mut cmds, None);
     }
 
     #[test]

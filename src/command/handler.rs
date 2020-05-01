@@ -414,7 +414,7 @@ mod tests {
 
     #[test]
     fn test_handle_commands() {
-        let command_string = "cd .. || ls || echo | exa";
+        let command_string = "cd .. || ls || echo | ls";
         let env_manager = EnvManager::new();
 
         let commands: Vec<Command> = handle_commands(command_string, &env_manager);
@@ -439,7 +439,7 @@ mod tests {
                 pipe_type: PipeType::PassesOutput,
             },
             Command {
-                command_name: String::from("exa"),
+                command_name: String::from("ls"),
                 arguments: vec![],
                 strategy: ExecStrategy::PathCommand,
                 pipe_type: PipeType::ReceivesInput,
