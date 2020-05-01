@@ -1,5 +1,8 @@
 pub mod command_bar;
 mod error;
+pub mod manager;
+
+pub use manager::ContextManager;
 
 #[derive(Debug)]
 pub enum ColorName {

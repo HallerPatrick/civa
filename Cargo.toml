@@ -22,8 +22,9 @@ ansi_term = "0.12"
 log = "0.4"
 pretty_env_logger = "0.4"
 
-# For config parsing
+# Config
 yaml-rust = "0.4"
+xdg = "^2.1"
 
 git = { path="plugins/git", version="0.1.0"}
 

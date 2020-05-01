@@ -296,7 +296,7 @@ mod tests {
             String::from("|"),
             String::from("echo"),
             String::from("|"),
-            String::from("exa"),
+            String::from("ls"),
         ];
 
         let env_manager = EnvManager::new();
@@ -314,7 +314,7 @@ mod tests {
                 pipe_type: PipeType::OutAndInput,
             },
             Command {
-                command_name: String::from("exa"),
+                command_name: String::from("ls"),
                 arguments: Vec::<String>::new(),
                 strategy: ExecStrategy::PathCommand,
                 pipe_type: PipeType::ReceivesInput,

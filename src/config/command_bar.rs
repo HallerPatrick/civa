@@ -118,7 +118,7 @@ pub struct CommandBarConfig {
 }
 
 impl<'a> CommandBarConfig {
-    fn default() -> Self {
+    pub fn default() -> Self {
         Self {
             components: vec![
                 Component::default(CommandBarComponents::CWD),

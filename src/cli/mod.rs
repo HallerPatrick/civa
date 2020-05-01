@@ -22,16 +22,14 @@ pub mod editor;
 
 use std::env::{current_dir, var};
 
-use crate::config::command_bar::{
-    command_bar_config_reader, CommandBarComponents, CommandBarConfig,
-};
+use crate::config::command_bar::CommandBarComponents;
+use crate::config::ContextManager;
+
 use crate::config::{ColorName, StyleName};
 use editor::built_editor;
 use editor::MyHelper;
 
 use git::GitCli;
-
-use log::info;
 
 use rustyline::Editor;
 use termion::color as termion_colors;
@@ -39,19 +37,21 @@ use termion::color::Fg;
 use termion::style;
 
 pub struct Cli {
-    pub configuration: CommandBarConfig,
+    pub context: ContextManager,
     pub editor: Editor<MyHelper>,
 }
 
 impl Cli {
     pub fn new() -> Self {
-        let conf = command_bar_config_reader("examples/.civa.bar.yaml").unwrap();
+        // let conf = command_bar_config_reader("examples/.civa.bar.yaml").unwrap();
 
-        info!("{:?}", conf);
+        let context = ContextManager::init();
+
+        // info!("{:?}", conf);
 
         Self {
             editor: built_editor(),
-            configuration: conf,
+            context,
         }
     }
 
@@ -123,8 +123,9 @@ impl Cli {
     }
 
     fn build_cmd_bar(&self) -> String {
-        let mut vec: Vec<String> = Vec::with_capacity(self.configuration.components.len());
-        for config in &self.configuration.components {
+        let mut vec: Vec<String> =
+            Vec::with_capacity(self.context.command_bar_config.components.len());
+        for config in &self.context.command_bar_config.components {
             Cli::push_color(&mut vec, &config.color.color_name);
 
             vec.push(config.sorround.left.clone());
@@ -142,12 +143,25 @@ impl Cli {
         }
 
         // Add prompt
-        Cli::push_color(&mut vec, &self.configuration.prompt.color.color_name);
-        vec.push(self.configuration.prompt.sorround.left.clone());
-        vec.push(self.configuration.prompt.symbol.clone());
-        vec.push(self.configuration.prompt.sorround.right.clone());
+        Cli::push_color(
+            &mut vec,
+            &self.context.command_bar_config.prompt.color.color_name,
+        );
+        vec.push(self.context.command_bar_config.prompt.sorround.left.clone());
+        vec.push(self.context.command_bar_config.prompt.symbol.clone());
+        vec.push(
+            self.context
+                .command_bar_config
+                .prompt
+                .sorround
+                .right
+                .clone(),
+        );
         vec.push(String::from(" "));
-        Cli::push_style(&mut vec, &self.configuration.prompt.style.style_name);
+        Cli::push_style(
+            &mut vec,
+            &self.context.command_bar_config.prompt.style.style_name,
+        );
         vec.push(format!("{}", style::Reset));
 
         // info!("{:?}", vec);

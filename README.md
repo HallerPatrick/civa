@@ -29,8 +29,12 @@ A own implementation of a shell
 - [ ] Autocompletion menu and man page/command line autocompletion
 - [ ] Handle piping
 - [ ] Make Alias System
-- [ ] Integration of SVN
+- [ ] Integration of CMS
+  - [ ] Git
+  - [ ] SVN
 - [ ] Build a config system (python?)
+  - [x] Command Bar (UI)
+  - [ ] Aliases
 - [ ] Use opiniated builtin alternatives to the GNU/Unix tools
 - [ ] Tests! (look for good mock library)
 - [ ] Thinking of ways to improve shell workflows (own opinion)
