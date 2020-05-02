@@ -1,5 +1,7 @@
 use std::borrow::Cow::{self, Borrowed, Owned};
 
+use log::info;
+use rcalc::{Calculator, RuntimeItem, Value};
 use rustyline::completion::{Completer, FilenameCompleter, Pair};
 use rustyline::config::OutputStreamType;
 use rustyline::error::ReadlineError;
@@ -8,6 +10,7 @@ use rustyline::hint::{Hinter, HistoryHinter};
 use rustyline::validate::{self, MatchingBracketValidator, Validator};
 use rustyline::Helper;
 use rustyline::{Cmd, CompletionType, Config, Context, EditMode, Editor, KeyPress};
+use termion::color::{Fg, Green};
 
 pub struct MyHelper {
     pub completer: FilenameCompleter,
@@ -15,6 +18,7 @@ pub struct MyHelper {
     pub validator: MatchingBracketValidator,
     pub hinter: HistoryHinter,
     pub colored_prompt: String,
+    pub calculator: Calculator,
 }
 
 impl Helper for MyHelper {}
@@ -34,7 +38,34 @@ impl Completer for MyHelper {
 
 impl Hinter for MyHelper {
     fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<String> {
-        self.hinter.hint(line, pos, ctx)
+        if self.calculator.is_arithmetic_expression(line) {
+            let mut calculator = Calculator::new();
+            let curr_str = line.clone();
+            let mut curr_strr = String::from(curr_str);
+            curr_strr.remove(0);
+            let expr = curr_strr.to_string();
+            let expr_str = expr.trim().clone();
+
+            info!("Arithmetics operator: {}", line);
+
+            match calculator.calc(expr_str) {
+                Ok(item) => {
+                    if let &RuntimeItem::Value(ref v) = item {
+                        match v {
+                            &Value::Integer(n) => {
+                                return Some(format!("{} : {}", Fg(Green), n));
+                            }
+                            _ => return self.hinter.hint(line, pos, ctx),
+                        }
+                    } else {
+                        return self.hinter.hint(line, pos, ctx);
+                    };
+                }
+                Err(_) => self.hinter.hint(line, pos, ctx),
+            }
+        } else {
+            self.hinter.hint(line, pos, ctx)
+        }
     }
 }
 
@@ -89,6 +120,7 @@ pub fn built_editor() -> Editor<MyHelper> {
         hinter: HistoryHinter {},
         colored_prompt: "".to_owned(),
         validator: MatchingBracketValidator::new(),
+        calculator: Calculator::new(),
     };
     let mut rl = Editor::with_config(config);
     rl.set_helper(Some(h));

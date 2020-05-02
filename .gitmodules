@@ -1,0 +1,3 @@
+[submodule "plugins/rust-calc"]
+	path = plugins/rust-calc
+	url = https://github.com/HallerPatrick/rust-calc.git

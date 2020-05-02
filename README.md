@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/HallerPatrick/civa/branch/master/graph/badge.svg)](https://codecov.io/gh/HallerPatrick/civa)
 
 <p align="center">
-  <img src="./civa_logo.png"/>
+  <img src=".res//civa_logo.png"/>
 </p>
 
 A own implementation of a shell
@@ -18,6 +18,15 @@ A own implementation of a shell
 * As long as I don't know how dirty code and programs look, I can not build clean code and programs
 * Build something I would use, with the approach the build a minimal working program
   and improve it while reaching its limits
+
+
+
+## Feature
+
+### Arithmetic Evaluation
+
+On the fly arithmetic evaluation which shows the result while typing
+![Arithmetic Evaluation](./res/arith.gif)
 
 ## Todo
 

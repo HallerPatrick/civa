@@ -1,4 +1,4 @@
-pub mod editor;
+mod editor;
 
 // Construct the command line cli
 // In the future this should all be able to be customized through

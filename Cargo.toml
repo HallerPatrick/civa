@@ -27,6 +27,7 @@ yaml-rust = "0.4"
 xdg = "^2.1"
 
 git = { path="plugins/git", version="0.1.0"}
+rcalc = { path="plugins/rust-calc", version="0.2.0"}
 
 # Experimental
 # rustpython = "0.1.1"
