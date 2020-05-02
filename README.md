@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/HallerPatrick/civa/branch/master/graph/badge.svg)](https://codecov.io/gh/HallerPatrick/civa)
 
 <p align="center">
-  <img src=".res/civa_logo.png"/>
+  <img src="res/civa_logo.png"/>
 </p>
 
 A own implementation of a shell
