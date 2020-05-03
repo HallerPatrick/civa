@@ -1,3 +1,4 @@
+mod alias;
 pub mod command_bar;
 mod error;
 pub mod manager;

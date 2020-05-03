@@ -48,6 +48,7 @@ On the fly arithmetic evaluation which shows the result while typing
 - [ ] Tests! (look for good mock library)
 - [ ] Thinking of ways to improve shell workflows (own opinion)
 - [ ] Read more
+- [ ] Setup a more solid test environment, like the [exa](https://github.com/ogham/exa) project with vagrant
 
 
 ## Custom Builtins

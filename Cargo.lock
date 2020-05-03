@@ -120,6 +120,7 @@ dependencies = [
  "pretty_env_logger",
  "prettytable-rs",
  "rcalc",
+ "regex",
  "rustyline",
  "termion",
  "xdg",

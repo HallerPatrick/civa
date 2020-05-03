@@ -47,7 +47,9 @@ fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
             Ok(exit_status) => Ok(exit_status),
             Err(err) => Err(CommandError::from(err)),
         },
-        ExecStrategy::PathCommand => {
+        ExecStrategy::PathCommand
+        | ExecStrategy::SlashCommand
+        | ExecStrategy::AbsolutePathCommand => {
             info!("Calling command: {}", command.command_name);
             info!("With arguments: {:?}", command.arguments);
             let child = SysCommand::new(command.command_name.clone())

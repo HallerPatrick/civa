@@ -10,7 +10,9 @@ pub enum ExecStrategy {
     // ShellFunction,
     // OtherUtilities,
     PathCommand,
+    AbsolutePathCommand,
     Undefined,
+    SlashCommand,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -18,7 +20,7 @@ pub enum PipeType {
     ReceivesInput,
     PassesOutput,
     OutAndInput,
-    Undefined
+    Undefined,
 }
 
 #[derive(Debug, PartialEq)]
@@ -26,7 +28,18 @@ pub struct Command {
     pub command_name: String,
     pub arguments: Vec<String>,
     pub strategy: ExecStrategy,
-    pub pipe_type: PipeType
+    pub pipe_type: PipeType,
+}
+
+impl Clone for Command {
+    fn clone(&self) -> Self {
+        Self {
+            command_name: self.command_name.clone(),
+            arguments: self.arguments.clone(),
+            strategy: self.strategy.clone(),
+            pipe_type: self.pipe_type.clone(),
+        }
+    }
 }
 
 impl Default for Command {
@@ -35,7 +48,7 @@ impl Default for Command {
             command_name: String::new(),
             arguments: Vec::new(),
             strategy: ExecStrategy::Undefined,
-            pipe_type: PipeType::Undefined
+            pipe_type: PipeType::Undefined,
         }
     }
 }

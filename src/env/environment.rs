@@ -21,6 +21,7 @@
 use log::info;
 use std::collections::HashMap;
 use std::env::var;
+use std::fs::canonicalize;
 use std::fs::read_dir;
 use std::fs::read_link;
 use std::fs::symlink_metadata;
@@ -122,7 +123,6 @@ fn split_var_string(val: String) -> Vec<String> {
 pub struct EnvManager {
     env_vars: HashMap<String, String>,
 }
-
 impl EnvManager {
     pub fn new() -> Self {
         let env_vars: HashMap<String, String> = collect_all_binaries_of_path();
@@ -135,6 +135,14 @@ impl EnvManager {
 
     pub fn has_command(&self, command_name: &str) -> bool {
         self.env_vars.contains_key(command_name)
+    }
+
+    pub fn canonicalize_path(rel_path: &str) -> String {
+        canonicalize(rel_path)
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string()
     }
 }
 
