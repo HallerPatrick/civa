@@ -1,5 +1,7 @@
 use std::borrow::Cow::{self, Borrowed, Owned};
+use std::cell::RefCell;
 
+use crate::config::ContextManager;
 use log::info;
 use rcalc::{Calculator, RuntimeItem, Value};
 use rustyline::completion::{Completer, FilenameCompleter, Pair};
@@ -18,7 +20,7 @@ pub struct MyHelper {
     pub validator: MatchingBracketValidator,
     pub hinter: HistoryHinter,
     pub colored_prompt: String,
-    pub calculator: Calculator,
+    pub calculator: RefCell<Calculator>,
 }
 
 impl Helper for MyHelper {}
@@ -38,21 +40,24 @@ impl Completer for MyHelper {
 
 impl Hinter for MyHelper {
     fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<String> {
-        if self.calculator.is_arithmetic_expression(line) {
-            let mut calculator = Calculator::new();
+        if self.calculator.borrow().is_arithmetic_expression(line) {
             let curr_str = line.clone();
+
             let mut curr_strr = String::from(curr_str);
+
+            // Remove leading $
             curr_strr.remove(0);
+
             let expr = curr_strr.to_string();
-            let expr_str = expr.trim().clone();
+            let expr_str = expr.trim();
 
             info!("Arithmetics operator: {}", line);
 
-            match calculator.calc(expr_str) {
+            match self.calculator.borrow_mut().calc(expr_str) {
                 Ok(item) => {
                     if let &RuntimeItem::Value(ref v) = item {
-                        match v {
-                            &Value::Integer(n) => {
+                        match *v {
+                            Value::Integer(n) => {
                                 return Some(format!("{} : {}", Fg(Green), n));
                             }
                             _ => return self.hinter.hint(line, pos, ctx),
@@ -107,7 +112,7 @@ impl Validator for MyHelper {
         self.validator.validate_while_typing()
     }
 }
-pub fn built_editor() -> Editor<MyHelper> {
+pub fn built_editor(ctx: &ContextManager) -> Editor<MyHelper> {
     let config = Config::builder()
         .history_ignore_space(true)
         .completion_type(CompletionType::List)
@@ -120,15 +125,21 @@ pub fn built_editor() -> Editor<MyHelper> {
         hinter: HistoryHinter {},
         colored_prompt: "".to_owned(),
         validator: MatchingBracketValidator::new(),
-        calculator: Calculator::new(),
+        calculator: RefCell::new(Calculator::new()),
     };
     let mut rl = Editor::with_config(config);
     rl.set_helper(Some(h));
     rl.bind_sequence(KeyPress::Meta('N'), Cmd::HistorySearchForward);
     rl.bind_sequence(KeyPress::Meta('P'), Cmd::HistorySearchBackward);
 
-    if rl.load_history("history.txt").is_err() {
-        println!("No previous history.");
+    info!("{}", ctx.retrieve_history_cache().as_str());
+    if rl
+        .load_history(ctx.retrieve_history_cache().as_str())
+        .is_err()
+    {
+        info!("No previous history.");
+    } else {
+        info!("Load history file succesfully");
     }
     rl
 }

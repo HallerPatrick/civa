@@ -43,20 +43,28 @@ pub struct Cli {
 
 impl Cli {
     pub fn new() -> Self {
-        // let conf = command_bar_config_reader("examples/.civa.bar.yaml").unwrap();
-
         let context = ContextManager::init();
 
         // info!("{:?}", conf);
 
         Self {
-            editor: built_editor(),
+            editor: built_editor(&context),
             context,
         }
     }
 
     fn get_cwd_label() -> String {
-        format!("{}", String::from(current_dir().unwrap().to_str().unwrap()),)
+        Cli::shrink_user_dir(String::from(current_dir().unwrap().to_str().unwrap()))
+    }
+
+    fn shrink_user_dir(cwd: String) -> String {
+        let user = Cli::get_current_user();
+
+        if cwd.contains(user.as_str()) {
+            let v: Vec<&str> = cwd.split(user.as_str()).collect();
+            return format!("~{}", v[1]);
+        }
+        cwd
     }
 
     pub fn update(&mut self) -> String {
@@ -100,11 +108,10 @@ impl Cli {
     fn push_component_content(vec: &mut Vec<String>, component_type: &CommandBarComponents) {
         match component_type {
             CommandBarComponents::CWD => vec.push(Cli::get_cwd_label()),
-            CommandBarComponents::SVN => vec.push(format!(
-                "{}",
-                GitCli::get_current_branch().trim_end().to_string()
-            )),
-            CommandBarComponents::USER => vec.push(format!("{}", Cli::get_current_user())),
+            CommandBarComponents::SVN => {
+                vec.push(GitCli::get_current_branch().trim_end().to_string())
+            }
+            CommandBarComponents::USER => vec.push(Cli::get_current_user()),
             _ => {}
         }
     }
