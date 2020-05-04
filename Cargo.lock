@@ -116,6 +116,7 @@ dependencies = [
  "ansi_term 0.12.1",
  "clap",
  "git",
+ "lazy_static 1.4.0",
  "log 0.4.8",
  "pretty_env_logger",
  "prettytable-rs",

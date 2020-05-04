@@ -30,6 +30,7 @@ git = { path="plugins/git", version="0.1.0"}
 rcalc = { path="plugins/rust-calc", version="0.2.0"}
 
 regex = "1"
+lazy_static = "1.4.0"
 
 # Experimental
 # rustpython = "0.1.1"
