@@ -13,6 +13,31 @@ impl GitCli {
         String::from_utf8(output.stdout).expect("Found invalid UTF-8")
     }
 
+    pub fn no_upstream_commits() -> usize {
+        let output: Output = Command::new("git")
+            .args(&["git", "cherry"])
+            .output()
+            .unwrap();
+
+        String::from_utf8(output.stdout)
+            .expect("Found invalid UTF-8")
+            .split("\n")
+            .count()
+    }
+
+    pub fn compose_git_component() -> String {
+        let mut comps: Vec<String> = vec![];
+
+        comps.push(GitCli::get_current_branch().trim_end().to_string());
+
+        match GitCli::no_upstream_commits() {
+            0 => {}
+            num => comps.push(format!(" ⇡{}", num)),
+        }
+
+        comps.join("")
+    }
+
     // fn number_untracked_files() -> String {}
 
     // fn number_modified_files() -> String {}

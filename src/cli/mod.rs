@@ -108,9 +108,7 @@ impl Cli {
     fn push_component_content(vec: &mut Vec<String>, component_type: &CommandBarComponents) {
         match component_type {
             CommandBarComponents::CWD => vec.push(Cli::get_cwd_label()),
-            CommandBarComponents::SVN => {
-                vec.push(GitCli::get_current_branch().trim_end().to_string())
-            }
+            CommandBarComponents::SVN => vec.push(GitCli::compose_git_component()),
             CommandBarComponents::USER => vec.push(Cli::get_current_user()),
             _ => {}
         }
