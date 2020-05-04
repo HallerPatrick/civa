@@ -37,6 +37,7 @@ use crate::env::environment::EnvManager;
 
 use crate::command::PipeType::Undefined;
 use log::{debug, info};
+use regex::Regex;
 
 type CommandTokenCollection = Vec<Vec<String>>;
 
@@ -67,41 +68,44 @@ pub fn handle_commands(command_string: &str, ctx: &ContextManager) -> Vec<Comman
                         if index == sub_command.len() {
                             let mut new_cmd = cmd.clone();
                             new_cmd.arguments.append(&mut command);
+                            info!("Making new commmand: {:?}", new_cmd);
                             commands.push(new_cmd);
                         } else {
+                            info!("Pushing old command: {:?}", cmd);
                             commands.push(cmd.clone());
                         }
                     }
                 }
-                None => {}
+                None => {
+                    let strategy = define_command_strategy(command_name.as_str(), &ctx.env_manager);
+
+                    info!("Defined strategy: {:?}", strategy);
+
+                    match strategy {
+                        ExecStrategy::Builtin => {
+                            // Do nothing?
+                        }
+                        ExecStrategy::PathCommand => {
+                            command_name =
+                                ctx.env_manager.get_expanded(command_name).unwrap().into()
+                        }
+                        ExecStrategy::SlashCommand => {
+                            command_name = EnvManager::canonicalize_path(command_name.as_str());
+                        }
+                        ExecStrategy::AbsolutePathCommand => {}
+                        _ => {}
+                    }
+
+                    let cmd = Command {
+                        command_name,
+                        arguments: command,
+                        strategy,
+                        pipe_type: Undefined,
+                    };
+
+                    commands.push(cmd);
+                }
             }
-
-            let strategy = define_command_strategy(command_name.as_str(), &ctx.env_manager);
-
-            info!("Defined strategy: {:?}", strategy);
-
-            match strategy {
-                ExecStrategy::Builtin => {
-                    // Do nothing?
-                }
-                ExecStrategy::PathCommand => {
-                    command_name = ctx.env_manager.get_expanded(command_name).unwrap().into()
-                }
-                ExecStrategy::SlashCommand => {
-                    command_name = EnvManager::canonicalize_path(command_name.as_str());
-                }
-                ExecStrategy::AbsolutePathCommand => {}
-                _ => {}
-            }
-
-            let cmd = Command {
-                command_name,
-                arguments: command,
-                strategy,
-                pipe_type: Undefined,
-            };
-
-            commands.push(cmd);
         }
     }
 
@@ -219,9 +223,20 @@ fn is_absolute_path_command(token: &str) -> bool {
 //       3. ||
 //
 fn split_commands(command_string: &str) -> CommandTokenCollection {
+    lazy_static! {
+        static ref REGEX_SPLIT_COMMAND: Regex = Regex::new(r#"(".*"|\S*)"#).unwrap();
+    }
+
     let mut commands: CommandTokenCollection = Vec::new();
 
-    let mut command_tokens: Vec<&str> = command_string.split_whitespace().collect();
+    let mut command_tokens: Vec<&str> = REGEX_SPLIT_COMMAND
+        .captures_iter(command_string)
+        .map(|cap| cap.get(0).unwrap())
+        .map(|t| t.as_str())
+        .filter(|s| String::from(*s) != "")
+        .collect();
+
+    info!("Command tokens: {:?}", command_tokens);
 
     while !command_tokens.is_empty() {
         if is_delimiter(command_tokens.first().unwrap()) && command_tokens.len() == 1 {

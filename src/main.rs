@@ -13,6 +13,9 @@ use crate::command::executer::exec_sequentially;
 use crate::command::handler::handle_commands;
 
 #[macro_use]
+extern crate lazy_static;
+
+#[macro_use]
 extern crate prettytable;
 
 fn main() {

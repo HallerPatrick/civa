@@ -24,21 +24,19 @@ impl AliasSystem {
 
 impl AliasSystem {
     pub fn from_file(path: &str) -> Result<Self, ConfigError> {
-        let alias_regex = Regex::new(r"^alias [a-zA-Z0-9]+[ ]*=[ ]*'.*'$").unwrap();
+        lazy_static! {
+            static ref ALIAS_REGEX: Regex =
+                Regex::new(r#"^alias (?P<alias>[a-zA-Z.]+) *= *["'](?P<command>.*)["']"#).unwrap();
+        }
 
         let mut lines: Vec<String> = file_to_vec(path);
 
         let mut alias_map: HashMap<String, String> = HashMap::new();
         for (index, line) in lines.iter_mut().enumerate() {
-            if alias_regex.is_match(line.trim()) {
-                line.drain(..5);
-                let all: Vec<String> = line.split("=").map(String::from).collect();
-                let alias_name = all[0].trim();
-                let alias_expr = all[1].trim().replace("'", "");
-
-                info!("{}:{}", alias_name, alias_expr);
-
-                alias_map.insert(String::from(alias_name), String::from(alias_expr));
+            if ALIAS_REGEX.is_match(line.trim()) {
+                let caps = ALIAS_REGEX.captures(line).unwrap();
+                info!("Alias: {}, Command: {}", &caps["alias"], &caps["command"]);
+                alias_map.insert(String::from(&caps["alias"]), String::from(&caps["command"]));
             } else
             // Comments
             if line.trim().starts_with("#") || line.trim() == "" {
