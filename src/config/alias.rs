@@ -66,8 +66,8 @@ fn file_to_vec(path: &str) -> Vec<String> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn read_aliases() {
-        AliasSystem::from_file("/Users/patrickhaller/.dotfiles/bash_aliases");
-    }
+    // #[test]
+    // fn read_aliases() {
+    //     AliasSystem::from_file("/Users/patrickhaller/.dotfiles/bash_aliases");
+    // }
 }
