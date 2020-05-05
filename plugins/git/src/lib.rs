@@ -19,10 +19,14 @@ impl GitCli {
             .output()
             .unwrap();
 
-        String::from_utf8(output.stdout)
-            .expect("Found invalid UTF-8")
-            .split("\n")
-            .count()
+        let output = String::from_utf8(output.stdout).expect("Found invalid UTF-8");
+        println!("{:?}", output);
+
+        if output == "" {
+            0
+        } else {
+            output.split("\n").count()
+        }
     }
 
     pub fn compose_git_component() -> String {
@@ -52,5 +56,12 @@ mod tests {
     fn it_works() {
         let result = GitCli::get_current_branch();
         assert_eq!(result, "master\n");
+    }
+
+    #[test]
+    fn it_works1() {
+        let res = GitCli::no_upstream_commits();
+
+        assert_eq!(res, 0);
     }
 }
