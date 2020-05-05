@@ -13,6 +13,7 @@ pub enum ExecStrategy {
     AbsolutePathCommand,
     Undefined,
     SlashCommand,
+    ArithmeticExpression,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -39,6 +40,19 @@ impl Clone for Command {
             strategy: self.strategy.clone(),
             pipe_type: self.pipe_type.clone(),
         }
+    }
+}
+
+impl Command {
+    fn to_str(&self) -> String {
+        let mut str_components = vec![];
+
+        str_components.push(self.command_name.clone());
+        self.arguments
+            .iter()
+            .for_each(|a| str_components.push(a.to_string()));
+
+        str_components.join(" ")
     }
 }
 

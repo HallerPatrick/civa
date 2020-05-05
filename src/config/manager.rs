@@ -1,6 +1,9 @@
 use super::alias::AliasSystem;
 use super::command_bar::{command_bar_config_reader, CommandBarConfig};
 use crate::env::environment::EnvManager;
+
+use rcalc::Calculator;
+use std::cell::RefCell;
 use std::fs::File;
 use std::path::Path;
 use xdg;
@@ -16,6 +19,7 @@ pub struct ContextManager {
     base_dir: xdg::BaseDirectories,
     pub alias_system: AliasSystem,
     pub env_manager: EnvManager,
+    pub calculator: RefCell<Calculator>,
 }
 
 impl ContextManager {
@@ -39,6 +43,7 @@ impl ContextManager {
                 .unwrap();
 
                 return Self {
+                    calculator: RefCell::new(Calculator::new()),
                     base_dir: dir,
                     command_bar_config,
                     alias_system,

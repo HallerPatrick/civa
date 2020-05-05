@@ -4,9 +4,12 @@ use std::process::Stdio;
 use log::{error, info};
 
 use super::error::CommandError;
+
 use crate::builtins::executer;
 use crate::builtins::exit_status::ExitStatus;
 use crate::command::{Command, ExecStrategy, PipeType};
+use crate::config::manager::ContextManager;
+use rcalc::{RuntimeItem, Value};
 
 //
 // Depending on using pipes or just the sequential delimiter
@@ -16,7 +19,7 @@ use crate::command::{Command, ExecStrategy, PipeType};
 // If it just a sequential, then throw exit code etc away...for now
 //
 //
-pub fn exec_sequentially(commands: &mut Vec<Command>) -> ExitStatus {
+pub fn exec_sequentially(commands: &mut Vec<Command>, ctx: &ContextManager) -> ExitStatus {
     let mut current_status: ExitStatus = ExitStatus { code: -1 };
 
     while !commands.is_empty() {
@@ -25,7 +28,7 @@ pub fn exec_sequentially(commands: &mut Vec<Command>) -> ExitStatus {
 
         info!("Execute command {:?}", command);
         match command.pipe_type {
-            PipeType::Undefined => match exec_command(commands.pop().unwrap()) {
+            PipeType::Undefined => match exec_command(commands.pop().unwrap(), ctx) {
                 Ok(exit_status) => current_status = exit_status,
                 Err(err) => {
                     error!("{}", err);
@@ -41,8 +44,44 @@ pub fn exec_sequentially(commands: &mut Vec<Command>) -> ExitStatus {
     current_status
 }
 
-fn exec_command(command: Command) -> Result<ExitStatus, CommandError> {
+fn exec_arithmetic_expression(
+    command: Command,
+    ctx: &ContextManager,
+) -> Result<ExitStatus, CommandError> {
+    let mut expr = command.to_str().clone();
+    expr.remove(0);
+    match ctx.calculator.borrow_mut().calc(expr.as_str()) {
+        Ok(item) => {
+            if let &RuntimeItem::Value(ref v) = item {
+                match *v {
+                    Value::Integer(n) => {
+                        println!("{}", n);
+                        return Ok(ExitStatus { code: 1 });
+                    }
+                    _ => {
+                        return Err(CommandError {
+                            kind: String::from("Arithmetic"),
+                            message: String::from("Couldnt evaluate expression: {}"),
+                        })
+                    }
+                }
+            } else {
+                return Err(CommandError {
+                    kind: String::from("Arithmetic"),
+                    message: String::from("Couldnt evaluate expression"),
+                });
+            }
+        }
+        Err(_) => Err(CommandError {
+            kind: String::from("Arithmetic"),
+            message: String::from("Couldnt evaluate expression"),
+        }),
+    }
+}
+
+fn exec_command(command: Command, ctx: &ContextManager) -> Result<ExitStatus, CommandError> {
     match command.strategy {
+        ExecStrategy::ArithmeticExpression => exec_arithmetic_expression(command, ctx),
         ExecStrategy::Builtin => match executer::executor(command) {
             Ok(exit_status) => Ok(exit_status),
             Err(err) => Err(CommandError::from(err)),

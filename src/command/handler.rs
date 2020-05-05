@@ -55,6 +55,9 @@ pub fn handle_commands(command_string: &str, ctx: &ContextManager) -> Vec<Comman
             let mut pipe_commands = build_pipe_commands(command.clone(), &ctx.env_manager);
 
             commands.append(pipe_commands.as_mut());
+
+        // Output Directions
+        } else if command.clone().contains(&String::from(">")) {
         } else {
             let mut command_name = command.remove(0);
 
@@ -184,6 +187,9 @@ fn split_pipe(raw_pipe_commands: Vec<String>) -> CommandTokenCollection {
 }
 
 fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> ExecStrategy {
+    if command_name.starts_with("$") {
+        ExecStrategy::ArithmeticExpression
+    } else
     // Check if command_name contains slash
     if is_relative_command(command_name) {
         // path commands will be canonicalized

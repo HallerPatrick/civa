@@ -59,7 +59,6 @@ fn main() {
 }
 
 fn main_loop() {
-    // let env_manager = EnvManager::new();
     info!("Init env manager");
 
     let mut cli = Cli::new();
@@ -71,11 +70,12 @@ fn main_loop() {
         match cli.editor.readline(&p) {
             Ok(line) => {
                 cli.editor.add_history_entry(line.as_str());
+
                 info!("Read input line {}", line);
                 let mut commands = handle_commands(line.as_str(), &cli.context);
 
                 info!("Executing commands sequentially: {:?}", commands);
-                exec_sequentially(&mut commands);
+                exec_sequentially(&mut commands, &cli.context);
             }
             // "Soft Reset" the shell
 

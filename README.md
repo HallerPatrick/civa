@@ -21,11 +21,46 @@ A own implementation of a shell
 
 
 
-## Feature
+## Features
+
+### Sequential execution
+
+```bash
+
+$ ls || echo "Hello World"
+# Same as
+$ ls ; echo "Hello World"
+# Same as
+$ ls && echo "Hello World"
+
+```
+
+### Piping
+
+```bash
+$ ls | cat
+```
 
 ### Arithmetic Evaluation
 
+Calculations have to start with a ```$```
+
+```bash
+$ $ 1 + 1
+2
+```
+
+Reserved keyword ```it``` for using last result
+
+```bash
+$ $ 1 + 1
+2
+$ $ it + 3
+5
+```
+
 On the fly arithmetic evaluation which shows the result while typing
+
 ![Arithmetic Evaluation](./res/arith.gif)
 
 ## Todo
