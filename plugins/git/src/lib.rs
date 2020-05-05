@@ -1,35 +1,45 @@
-use std::process::Output;
+#[allow(unused_imports)]
+#[macro_use]
+extern crate log;
+
+use log::info;
 use std::process::{Command, Stdio};
 
 pub struct GitCli {}
 
 impl GitCli {
     pub fn get_current_branch() -> String {
-        let output: Output = Command::new("git")
+        info!("Get Current branch");
+        match Command::new("git")
             .args(&["rev-parse", "--abbrev-ref", "HEAD"])
             .output()
-            .unwrap();
-
-        String::from_utf8(output.stdout).expect("Found invalid UTF-8")
+        {
+            Ok(output) => String::from_utf8(output.stdout).expect("Found invalid UTF-8"),
+            Err(_) => String::from(""),
+        }
     }
 
     pub fn no_upstream_commits<'a>() -> String {
-        let git_call = Command::new("git")
+        info!("Get upstream commits");
+        match Command::new("git")
             .args(&["cherry"])
             .stdout(Stdio::piped())
             .spawn()
-            .unwrap();
+        {
+            Ok(git_call) => {
+                let wc = Command::new("wc")
+                    .args(&["-l"])
+                    .stdin(git_call.stdout.unwrap())
+                    .output()
+                    .unwrap();
 
-        let wc = Command::new("wc")
-            .args(&["-l"])
-            .stdin(git_call.stdout.unwrap())
-            .output()
-            .unwrap();
-
-        String::from_utf8(wc.stdout)
-            .expect("Found invalid UTF-8")
-            .trim()
-            .to_string()
+                String::from_utf8(wc.stdout)
+                    .expect("Found invalid UTF-8")
+                    .trim()
+                    .to_string()
+            }
+            Err(_) => String::from(""),
+        }
     }
 
     pub fn compose_git_component() -> String {
