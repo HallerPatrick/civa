@@ -1,6 +1,7 @@
 pub mod error;
 pub mod executer;
 pub mod handler;
+mod parser;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ExecStrategy {
