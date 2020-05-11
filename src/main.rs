@@ -3,9 +3,12 @@ mod cli;
 mod command;
 mod config;
 mod env;
+mod status;
 
-use clap::{App, Arg};
+use crate::config::PyConfRuntime;
+use clap::{App, Arg, SubCommand};
 use log::{info, LevelFilter};
+use pyo3::prelude::*;
 use rustyline::error::ReadlineError;
 
 use crate::cli::Cli;
@@ -17,6 +20,10 @@ extern crate lazy_static;
 
 #[macro_use]
 extern crate prettytable;
+
+pub struct CivaOpts {
+    pub pyconf_lib_path: String,
+}
 
 fn main() {
     let matches = App::new("civa")
@@ -31,6 +38,8 @@ fn main() {
                 .possible_values(&["error", "warn", "info", "debug", "trace"])
                 .takes_value(true),
         )
+        .arg(Arg::with_name("civa-lib").short("cl").takes_value(true))
+        // .arg(SubCommand::with_name("init"))
         .get_matches();
 
     let loglevel = match matches.value_of("loglevel") {
@@ -54,15 +63,31 @@ fn main() {
 
     info!("Init Logger");
 
+    let pyconf_lib_path = match matches.value_of("civa-lib") {
+        Some(path) => String::from(path),
+        None => String::new(),
+    };
+
+    let civa_opts = CivaOpts { pyconf_lib_path };
+
     // Start loop
-    main_loop();
+    main_loop(civa_opts);
 }
 
-fn main_loop() {
+fn main_loop(civa_opts: CivaOpts) {
     info!("Init env manager");
 
-    let mut cli = Cli::new();
+    let mut cli = Cli::new(civa_opts);
     info!("Init Cli");
+
+    let gil = Python::acquire_gil();
+    let py_conf = PyConfRuntime::new(&gil);
+
+    // TODO: IMPLS
+    match py_conf.import_civa_lib() {
+        false => info!("Could not find civa in site-packages"),
+        true => info!("Found civa in site-packages"),
+    }
 
     loop {
         let p = cli.update();

@@ -1,8 +1,10 @@
 mod alias;
 pub mod command_bar;
 mod error;
+pub mod interpreter;
 pub mod manager;
 
+pub use interpreter::PyConfRuntime;
 pub use manager::ContextManager;
 
 #[derive(Debug)]

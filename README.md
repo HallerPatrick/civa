@@ -71,14 +71,14 @@ On the fly arithmetic evaluation which shows the result while typing
 - [x] Handle command splitting
 - [x] Implement PATH search and correct command handling (depending on slash)
 - [ ] Autocompletion menu and man page/command line autocompletion
-- [ ] Handle piping
+- [x] Handle piping
 - [ ] Make Alias System
 - [ ] Integration of CMS
   - [ ] Git
   - [ ] SVN
 - [ ] Build a config system (python?)
   - [x] Command Bar (UI)
-  - [ ] Aliases
+  - [x] Aliases
 - [ ] Use opiniated builtin alternatives to the GNU/Unix tools
 - [ ] Tests! (look for good mock library)
 - [ ] Thinking of ways to improve shell workflows (own opinion)

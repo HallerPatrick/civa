@@ -13,7 +13,7 @@ clap = "2.33.0"
 # nix = "0.13.0"
 
 # CLI
-rustyline = "6.1.1"
+rustyline = "6.0.0"
 termion = "1.5.5"
 prettytable-rs = "^0.8"
 ansi_term = "0.12"
@@ -26,12 +26,10 @@ pretty_env_logger = "0.4"
 yaml-rust = "0.4"
 xdg = "^2.1"
 
+
 git = { path="plugins/git", version="0.1.0"}
 rcalc = { path="plugins/rust-calc", version="0.2.0"}
 
 regex = "1"
 lazy_static = "1.4.0"
-
-# Experimental
-# rustpython = "0.1.1"
-
+pyo3 = { git="https://github.com/PyO3/pyo3.git" }

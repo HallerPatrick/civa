@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate log;
 
+use git2::Branch;
 use log::info;
 use std::process::{Command, Stdio};
 
@@ -9,6 +10,10 @@ pub struct GitCli {}
 
 impl GitCli {
     pub fn get_current_branch() -> String {
+        // match Branch::get().name() {
+        //     Ok(branch) => branch,
+        //     Err(_) => None,
+        // };
         info!("Get Current branch");
         match Command::new("git")
             .args(&["rev-parse", "--abbrev-ref", "HEAD"])
