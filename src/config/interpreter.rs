@@ -11,7 +11,6 @@
 ///         2.2 Use Case 2: Collect functions and execute, when in use
 ///     3. Hot Reload configs?
 ///
-///
 /// How can we share or communicate with the rust code?
 ///
 /// Method 1: Shared intermediate representations in file format (IRF)
@@ -51,46 +50,99 @@
 ///
 ///
 ///
-use std::process::Command;
+use std::fs::File;
+use std::io::prelude::*;
 
 use log::info;
 
 use pyo3::prelude::*;
+use pyo3::types::{IntoPyDict, PyDict};
 
 pub struct PyConfRuntime<'a> {
     py: Python<'a>,
+    pyconf_lib_path: &'a str,
 }
 
 impl<'a> PyConfRuntime<'a> {
-    pub fn new(gil: &'a GILGuard) -> Self {
+    pub fn new(gil: &'a GILGuard, pyconf_lib_path: &'a str) -> Self {
         let py = gil.python();
-
-        let sys = py.import("sys").unwrap();
-        let version: String = sys.get("version").unwrap().extract().unwrap();
-
-        info!("Using Python Version: {}", version);
-
-        Self { py }
-    }
-
-    fn import_civa_lib_from_path(&self, path: &str) {
-        // let sys = self.py.import("sys").unwrap();
-        // sys.get("path").unwrap()
-        //     .self.py.import("civa").unwrap();
-    }
-
-    ///
-    /// Check if civa is found in site-packages
-    ///
-    pub fn import_civa_lib(&self) -> bool {
-        match self.py.import("civa") {
-            Ok(_) => true,
-            _ => false,
+        Self {
+            py,
+            pyconf_lib_path,
         }
     }
+
+    pub fn exec_configs(&self) {
+        let locals = PyDict::new(self.py);
+        // let globals = PyDict::new(self.py);
+        let globals = [("__builtins__", self.py.import("builtins").unwrap())].into_py_dict(self.py);
+
+        let config_content = self.get_py_file_content();
+
+        let setup = r#"
+_aliases = {}
+_exports = {}
+
+def aliases(kwrags):
+    global _aliases
+    for k, v in kwrags.items():
+        _aliases[k] = v
+
+def alias(key, value):
+    global _aliases
+    _aliases[key] = value
+
+def export(key, value):
+    global _exports
+    _exports[key] = value
+            "#;
+
+        let exec_script: Vec<&str> = vec![setup, config_content.as_str()];
+
+        match self
+            .py
+            .run(exec_script.join("\n").as_str(), Some(globals), Some(locals))
+        {
+            Ok(_) => info!("Success"),
+            Err(err) => info!("Error: {:?}", err.print(self.py)),
+        }
+
+        match self.py.run(
+            "print('GLOBALS:'); print(globals()); print('LOCALS'); print(locals())",
+            Some(globals),
+            Some(locals),
+        ) {
+            Ok(_) => info!("Success"),
+            Err(err) => info!("Error: {:?}", err.print(self.py)),
+        }
+
+        match locals.get_item("foo").unwrap().call0() {
+            Ok(_) => info!("Success"),
+            Err(err) => info!("Error: {:?}", err.print(self.py)),
+        }
+
+        // let aliases_dict_py: &PyDict = globals.get_item("_aliases").unwrap().downcast().unwrap();
+
+        // info!("{:?}", aliases_dict_py);
+    }
+
+    fn get_py_file_content(&self) -> String {
+        let mut paths = vec![self.pyconf_lib_path];
+        paths.push("/");
+        paths.push("civa.py");
+
+        let path = paths.join("");
+
+        info!("{}", path);
+        let mut file = File::open(path).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        contents
+    }
 }
 
-pub fn exec_pyconf() {
-    let gil = Python::acquire_gil();
-    PyConfRuntime::new(&gil);
-}
+// pub fn exec_pyconf() {
+//     let gil = Python::acquire_gil();
+//     PyConfRuntime::new(&gil);
+// }

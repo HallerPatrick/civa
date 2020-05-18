@@ -41,7 +41,7 @@ impl Completer for MyHelper {
 impl Hinter for MyHelper {
     fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<String> {
         if self.calculator.borrow().is_arithmetic_expression(line) {
-            let curr_str = line.clone();
+            let curr_str = line;
 
             let mut curr_strr = String::from(curr_str);
 
@@ -55,7 +55,7 @@ impl Hinter for MyHelper {
 
             match self.calculator.borrow_mut().calc(expr_str) {
                 Ok(item) => {
-                    if let &RuntimeItem::Value(ref v) = item {
+                    if let RuntimeItem::Value(ref v) = item {
                         match *v {
                             Value::Integer(n) => {
                                 return Some(format!("{} : {}", Fg(Green), n));

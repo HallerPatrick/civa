@@ -6,7 +6,7 @@ mod env;
 mod status;
 
 use crate::config::PyConfRuntime;
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg};
 use log::{info, LevelFilter};
 use pyo3::prelude::*;
 use rustyline::error::ReadlineError;
@@ -77,17 +77,14 @@ fn main() {
 fn main_loop(civa_opts: CivaOpts) {
     info!("Init env manager");
 
-    let mut cli = Cli::new(civa_opts);
+    let mut cli = Cli::new();
     info!("Init Cli");
 
     let gil = Python::acquire_gil();
-    let py_conf = PyConfRuntime::new(&gil);
+    let p = civa_opts.pyconf_lib_path.as_str();
+    let py_conf = PyConfRuntime::new(&gil, &p);
 
-    // TODO: IMPLS
-    match py_conf.import_civa_lib() {
-        false => info!("Could not find civa in site-packages"),
-        true => info!("Found civa in site-packages"),
-    }
+    py_conf.exec_configs();
 
     loop {
         let p = cli.update();

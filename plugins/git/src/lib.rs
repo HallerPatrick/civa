@@ -2,7 +2,6 @@
 #[macro_use]
 extern crate log;
 
-use git2::Branch;
 use log::info;
 use std::process::{Command, Stdio};
 

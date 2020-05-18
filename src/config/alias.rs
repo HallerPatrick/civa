@@ -39,7 +39,7 @@ impl AliasSystem {
                 alias_map.insert(String::from(&caps["alias"]), String::from(&caps["command"]));
             } else
             // Comments
-            if line.trim().starts_with("#") || line.trim() == "" {
+            if line.trim().starts_with('#') || line.trim() == "" {
                 // Pass
             } else {
                 return Err(ConfigError {
@@ -58,7 +58,7 @@ fn file_to_vec(path: &str) -> Vec<String> {
     let mut contents = String::new();
     buf_reader.read_to_string(&mut contents).unwrap();
 
-    let v: Vec<String> = contents.split("\n").map(String::from).collect();
+    let v: Vec<String> = contents.split('\n').map(String::from).collect();
     v
 }
 

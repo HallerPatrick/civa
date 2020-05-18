@@ -48,11 +48,11 @@ fn exec_arithmetic_expression(
     command: Command,
     ctx: &ContextManager,
 ) -> Result<ExitStatus, CommandError> {
-    let mut expr = command.to_str().clone();
+    let mut expr = command.to_str();
     expr.remove(0);
     match ctx.calculator.borrow_mut().calc(expr.as_str()) {
         Ok(item) => {
-            if let &RuntimeItem::Value(ref v) = item {
+            if let RuntimeItem::Value(ref v) = item {
                 match *v {
                     Value::Integer(n) => {
                         println!("{}", n);

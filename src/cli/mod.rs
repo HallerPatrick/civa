@@ -24,7 +24,6 @@ use std::env::{current_dir, var};
 
 use crate::config::command_bar::CommandBarComponents;
 use crate::config::ContextManager;
-use crate::CivaOpts;
 
 use crate::config::{ColorName, StyleName};
 use editor::built_editor;
@@ -43,7 +42,7 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn new(_: CivaOpts) -> Self {
+    pub fn new() -> Self {
         let context = ContextManager::init();
 
         // info!("{:?}", conf);

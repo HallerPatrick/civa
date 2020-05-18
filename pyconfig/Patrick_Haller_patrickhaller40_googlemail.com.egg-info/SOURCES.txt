@@ -1,0 +1,5 @@
+setup.py
+Patrick_Haller_patrickhaller40_googlemail.com.egg-info/PKG-INFO
+Patrick_Haller_patrickhaller40_googlemail.com.egg-info/SOURCES.txt
+Patrick_Haller_patrickhaller40_googlemail.com.egg-info/dependency_links.txt
+Patrick_Haller_patrickhaller40_googlemail.com.egg-info/top_level.txt

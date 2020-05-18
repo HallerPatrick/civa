@@ -99,12 +99,16 @@ pub fn handle_commands(command_string: &str, ctx: &ContextManager) -> Vec<Comman
                         _ => {}
                     }
 
-                    let cmd = Command {
+                    let mut cmd = Command {
                         command_name,
                         arguments: command,
                         strategy,
                         pipe_type: Undefined,
                     };
+
+                    if is_sudo_command(&cmd) {
+                        make_command_sudo(&mut cmd);
+                    }
 
                     commands.push(cmd);
                 }
@@ -113,6 +117,20 @@ pub fn handle_commands(command_string: &str, ctx: &ContextManager) -> Vec<Comman
     }
 
     commands
+}
+
+fn make_command_sudo(cmd: &mut Command) {
+    let tmp_cmd_name = cmd.command_name.clone();
+    cmd.command_name = String::from("sudo");
+    cmd.arguments.insert(0, tmp_cmd_name);
+    cmd.arguments.pop();
+}
+
+fn is_sudo_command(cmd: &Command) -> bool {
+    match cmd.arguments.last() {
+        Some(arg) => arg.eq("!"),
+        None => false,
+    }
 }
 
 fn build_pipe_commands(command: Vec<String>, env_manager: &EnvManager) -> Vec<Command> {
@@ -187,7 +205,7 @@ fn split_pipe(raw_pipe_commands: Vec<String>) -> CommandTokenCollection {
 }
 
 fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> ExecStrategy {
-    if command_name.starts_with("$") {
+    if command_name.starts_with('$') {
         ExecStrategy::ArithmeticExpression
     } else
     // Check if command_name contains slash
@@ -212,13 +230,13 @@ fn define_command_strategy(command_name: &str, env_manager: &EnvManager) -> Exec
 fn is_relative_command(token: &str) -> bool {
     // let relative_path = Regex::new(r#"^.+/.+"#).unwrap();
     // relative_path.is_match(token)
-    token.starts_with(".")
+    token.starts_with('.')
 }
 
 fn is_absolute_path_command(token: &str) -> bool {
     // let abs_path = Regex::new(r"^/+").unwrap();
     // abs_path.is_match(token)
-    token.starts_with("/")
+    token.starts_with('/')
 }
 
 // Returns single commands that are split by the special chars(sequences)
@@ -239,7 +257,7 @@ fn split_commands(command_string: &str) -> CommandTokenCollection {
         .captures_iter(command_string)
         .map(|cap| cap.get(0).unwrap())
         .map(|t| t.as_str())
-        .filter(|s| String::from(*s) != "")
+        .filter(|s| *s != "")
         .collect();
 
     info!("Command tokens: {:?}", command_tokens);

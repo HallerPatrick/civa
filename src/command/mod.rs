@@ -37,8 +37,8 @@ impl Clone for Command {
         Self {
             command_name: self.command_name.clone(),
             arguments: self.arguments.clone(),
-            strategy: self.strategy.clone(),
-            pipe_type: self.pipe_type.clone(),
+            strategy: self.strategy,
+            pipe_type: self.pipe_type,
         }
     }
 }

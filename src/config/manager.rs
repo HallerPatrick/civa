@@ -2,15 +2,11 @@ use super::alias::AliasSystem;
 use super::command_bar::{command_bar_config_reader, CommandBarConfig};
 use crate::env::environment::EnvManager;
 
-use super::interpreter::PyConfRuntime;
-use log::info;
 use rcalc::Calculator;
 use std::cell::RefCell;
 use std::fs::File;
 use std::path::Path;
 use xdg;
-
-use pyo3::prelude::*;
 
 static PREFIX: &str = "civa";
 static COMMAND_BAR_CONFIG_FILE: &str = "bar.yaml";
@@ -54,7 +50,7 @@ impl ContextManager {
                     env_manager: EnvManager::new(),
                 };
             }
-            Err(_) => panic!("Could not find home"), //CommandBarConfig::default(),
+            Err(err) => panic!("Could not find home: {}", err), //CommandBarConfig::default(),
         };
     }
 
