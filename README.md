@@ -41,6 +41,22 @@ $ ls && echo "Hello World"
 $ ls | cat
 ```
 
+
+### Sudo Substiution
+
+Sudo can be invoked by using `!` at the end of a command
+
+```
+$ sudo ls
+
+# equal to
+
+$ ls !
+
+```
+
+Comes in handy especially when forgetting to use sudo at the beginning of the command
+
 ### Arithmetic Evaluation
 
 Calculations have to start with a ```$```
