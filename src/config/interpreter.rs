@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 ///
 ///
 ///
@@ -24,28 +25,6 @@
 ///
 ///             2.1 XMLRPC?
 ///
-///
-///
-///
-///
-///
-/// How the configs should be evaluated and handled
-///
-/// ~/.config/civa/civa.alias.py
-///
-/// ```python
-///
-/// import civa
-///
-/// civa.init()
-///
-/// civa.alias("lsa", "exa -la")
-/// civa.alias("..", "cd ..")
-///
-///
-/// civa.exec()
-///
-/// ```
 ///
 ///
 ///
@@ -107,25 +86,13 @@ def export(key, value):
             Err(err) => info!("Error: {:?}", err.print(self.py)),
         }
 
-        match self.py.run(
-            "print('GLOBALS:'); print(globals()); print('LOCALS'); print(locals())",
-            Some(globals),
-            Some(locals),
-        ) {
-            Ok(_) => info!("Success"),
-            Err(err) => info!("Error: {:?}", err.print(self.py)),
-        }
-
         match locals.get_item("foo").unwrap().call0() {
             Ok(_) => info!("Success"),
             Err(err) => info!("Error: {:?}", err.print(self.py)),
         }
-
-        // let aliases_dict_py: &PyDict = globals.get_item("_aliases").unwrap().downcast().unwrap();
-
-        // info!("{:?}", aliases_dict_py);
     }
 
+    // TODO: Should be partly done by XDG
     fn get_py_file_content(&self) -> String {
         let mut paths = vec![self.pyconf_lib_path];
         paths.push("/");
@@ -140,9 +107,8 @@ def export(key, value):
 
         contents
     }
-}
 
-// pub fn exec_pyconf() {
-//     let gil = Python::acquire_gil();
-//     PyConfRuntime::new(&gil);
-// }
+    // pub fn get_alias_map() -> HashMap<String, String> {
+
+    // }
+}

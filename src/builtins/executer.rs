@@ -1,17 +1,21 @@
 use crate::command::Command;
 
+use super::alias;
 use super::cd;
 use super::error::BuiltinError;
 use super::exit_status::ExitStatus;
 use super::penv;
 use super::BUILTIN_NAMES;
 
-pub fn executor(command: Command) -> Result<ExitStatus, BuiltinError> {
+use crate::config::ContextManager;
+
+pub fn executor(command: Command, ctx: &ContextManager) -> Result<ExitStatus, BuiltinError> {
     if BUILTIN_NAMES.contains(&command.command_name.as_str()) {
         match command.command_name.as_str() {
             "cd" => cd::cd(command.arguments.first()),
             ":q" => std::process::exit(0),
             "penv" => penv::penv(command.arguments.first().unwrap_or(&String::new())),
+            "alias" => alias::alias(command.arguments.clone(), ctx),
             other => Err(BuiltinError {
                 kind: String::from("builtins"),
                 message: format!("Could not find builtin '{}'", other),
@@ -35,7 +39,9 @@ mod test {
         let mut cmd: Command = Command::default();
         cmd.command_name = String::from("test");
 
-        let result = executor(cmd);
+        let ctx = ContextManager::init();
+
+        let result = executor(cmd, &ctx);
 
         assert_eq!(result.is_err(), true);
     }
@@ -45,7 +51,8 @@ mod test {
         let mut cmd: Command = Command::default();
         cmd.command_name = String::from("cd");
 
-        let result = executor(cmd);
+        let ctx = ContextManager::init();
+        let result = executor(cmd, &ctx);
 
         assert_eq!(result.is_ok(), true);
     }
@@ -56,7 +63,8 @@ mod test {
         cmd.command_name = String::from("penv");
         cmd.arguments = vec![String::from("PATH")];
 
-        let result = executor(cmd);
+        let ctx = ContextManager::init();
+        let result = executor(cmd, &ctx);
 
         assert_eq!(result.is_ok(), true);
 
@@ -68,7 +76,8 @@ mod test {
         let mut cmd: Command = Command::default();
         cmd.command_name = String::from("penv");
 
-        let result = executor(cmd);
+        let ctx = ContextManager::init();
+        let result = executor(cmd, &ctx);
 
         assert!(result.is_err());
     }

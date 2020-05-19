@@ -3,6 +3,7 @@
 extern crate log;
 
 use log::info;
+use std::path::Path;
 use std::process::{Command, Stdio};
 
 pub struct GitCli {}
@@ -14,6 +15,11 @@ impl GitCli {
         //     Err(_) => None,
         // };
         info!("Get Current branch");
+
+        if !GitCli::is_git_dir() {
+            return String::new();
+        }
+
         match Command::new("git")
             .args(&["rev-parse", "--abbrev-ref", "HEAD"])
             .output()
@@ -46,7 +52,14 @@ impl GitCli {
         }
     }
 
+    fn is_git_dir() -> bool {
+        Path::new("./.git").exists()
+    }
+
     pub fn compose_git_component() -> String {
+        if !GitCli::is_git_dir() {
+            return String::new();
+        }
         let mut comps: Vec<String> = vec![];
 
         comps.push(GitCli::get_current_branch().trim_end().to_string());

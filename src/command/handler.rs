@@ -62,7 +62,7 @@ pub fn handle_commands(command_string: &str, ctx: &ContextManager) -> Vec<Comman
             let mut command_name = command.remove(0);
 
             // Check for aliases
-            match ctx.alias_system.get_alias(command_name.clone()) {
+            match ctx.alias_system.borrow().get_alias(command_name.clone()) {
                 Some(alias) => {
                     let sub_command = handle_commands(alias, ctx);
 

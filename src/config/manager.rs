@@ -17,7 +17,7 @@ pub struct ContextManager {
     // config_dir: Option<xdg::BaseDirectories>,
     pub command_bar_config: CommandBarConfig,
     base_dir: xdg::BaseDirectories,
-    pub alias_system: AliasSystem,
+    pub alias_system: RefCell<AliasSystem>,
     pub env_manager: EnvManager,
     pub calculator: RefCell<Calculator>,
 }
@@ -46,11 +46,11 @@ impl ContextManager {
                     calculator: RefCell::new(Calculator::new()),
                     base_dir: dir,
                     command_bar_config,
-                    alias_system,
+                    alias_system: RefCell::new(alias_system),
                     env_manager: EnvManager::new(),
                 };
             }
-            Err(err) => panic!("Could not find home: {}", err), //CommandBarConfig::default(),
+            Err(_) => panic!("Could not find home"), //CommandBarConfig::default(),
         };
     }
 

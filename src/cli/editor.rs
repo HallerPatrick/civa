@@ -48,7 +48,7 @@ impl Hinter for MyHelper {
             // Remove leading $
             curr_strr.remove(0);
 
-            let expr = curr_strr.to_string();
+            let expr = curr_strr;
             let expr_str = expr.trim();
 
             info!("Arithmetics operator: {}", line);

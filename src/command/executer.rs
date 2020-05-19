@@ -82,7 +82,7 @@ fn exec_arithmetic_expression(
 fn exec_command(command: Command, ctx: &ContextManager) -> Result<ExitStatus, CommandError> {
     match command.strategy {
         ExecStrategy::ArithmeticExpression => exec_arithmetic_expression(command, ctx),
-        ExecStrategy::Builtin => match executer::executor(command) {
+        ExecStrategy::Builtin => match executer::executor(command, &ctx) {
             Ok(exit_status) => Ok(exit_status),
             Err(err) => Err(CommandError::from(err)),
         },
